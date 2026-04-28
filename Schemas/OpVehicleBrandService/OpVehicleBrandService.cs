@@ -1,4 +1,3 @@
-using BPMSoft.Configuration.WUserConnectionService;
 using BPMSoft.Core;
 using BPMSoft.Core.DB;
 using BPMSoft.Core.Entities;
@@ -6,13 +5,13 @@ using BPMSoft.Web.Common;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
+using System.Net;
 using System.ServiceModel;
 using System.ServiceModel.Activation;
 using System.ServiceModel.Web;
-using System.Threading.Tasks;
+using System.Text;
 
-namespace BPMSoft.Configuration.OPVehicleBrandService
+namespace BPMSoft.Configuration
 {
 
     [ServiceContract]
@@ -31,14 +30,14 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
             RequestFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Wrapped,
             ResponseFormat = WebMessageFormat.Json)]
-        public async Task ImportAllBrandsAndModelsAsync()
+        public string ImportAllBrandsAndModels()
         {
             _userConnection = UserConnection;
 
-            var testData = BPMSoft.Core.Configuration.SysSettings.GetValue<string>(UserConnection, "VehicleApiToken", string.Empty);
+            var testData = Core.Configuration.SysSettings.GetValue<string>(UserConnection, "VehicleApiToken", string.Empty);
 
             var endpoint = $"full?token={ApiToken}";
-            var response = await GetFromApiAsync<VehicleBrandDto>(endpoint);
+            var response = GetFromApi<VehicleBrandDto>(endpoint);
 
             LoadExistingData();
 
@@ -46,12 +45,14 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
             {
                 ProcessBrand(brand); 
             }
+
+            return "OK";
         }
 
-        public async Task ImportConfigurationsAsync()
+        public void ImportConfigurations()
         {
             var endpoint = $"configurations?token={ApiToken}";
-            var response = await GetFromApiAsync<VehicleConfigurationDto>(endpoint);
+            var response = GetFromApi<VehicleConfigurationDto>(endpoint);
 
             foreach (var config in response.Data)
             {
@@ -59,10 +60,10 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
             }
         }
 
-        public async Task ImportGenerationsAsync()
+        public void ImportGenerations()
         {
             var endpoint = $"generations?token={ApiToken}";
-            var response = await GetFromApiAsync<VehicleGenerationDto>(endpoint);
+            var response = GetFromApi<VehicleGenerationDto>(endpoint);
 
             foreach (var gen in response.Data)
             {
@@ -111,8 +112,8 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
             var insert = new Insert(_userConnection)
                 .Into("OPVehicleBrand")
                 .Set("OPExternalId", Column.Parameter(dto.ExternalId))
+                .Set("OPExternalNumericId", Column.Parameter(dto.ExternalNumericId))
                 .Set("OPName", Column.Parameter(dto.Name))
-                .Set("OPCountry", Column.Parameter(dto.Country))
                 .Set("OPExternalUpdatedAt", Column.Parameter(dto.UpdatedAt));
 
             insert.Execute();
@@ -129,28 +130,27 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
             update.Execute();
         }
 
-        private async Task<CarsBaseResponse<T>> GetFromApiAsync<T>(string endpoint)
+        private CarsBaseResponse<T> GetFromApi<T>(string endpoint)
         {
             if (string.IsNullOrEmpty(ApiUrl) || string.IsNullOrEmpty(ApiToken))
             {
                 throw new Exception("Ошибка интеграции: Не заполнены системные настройки");
             }
 
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri(ApiUrl);
-                try
-                {
-                    var responseMessage = await client.GetAsync(endpoint);
-                    responseMessage.EnsureSuccessStatusCode();
+            var url = ApiUrl + endpoint;
 
-                    var content = await responseMessage.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<CarsBaseResponse<T>>(content);
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
+            using (var webClient = new WebClient())
+            {
+                webClient.Encoding = Encoding.UTF8;
+                webClient.Headers.Add("user-agent", "BPMSoft-Integration-Client");
+                webClient.Headers.Add("Accept", "application/json");
+
+
+                string jsonResponse = webClient.DownloadString(url);
+
+                var apiResponse = JsonConvert.DeserializeObject<CarsBaseResponse<T>>(jsonResponse);
+
+                return apiResponse;
             }
         }
     }
@@ -165,6 +165,9 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
     {
         [JsonProperty("id")]
         public string ExternalId { get; set; }
+
+        [JsonProperty("numeric_id")]
+        public string ExternalNumericId { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }

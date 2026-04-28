@@ -18,11 +18,12 @@ define("OPVehicleBrand0d1717ebSection", ["ServiceHelper"], function(ServiceHelpe
 		methods: {
 			onImportButtonClick: function()	{
 				
+				
 				var serviceData = {};
 				
-				ServiceHelper.callService("OPVehicleBrandService", "ImportAllBrandsAndModelsAsync",
+				ServiceHelper.callService("OPVehicleBrandService", "ImportAllBrandsAndModels",
                     function(response) {
-                        var result = response.ImportAllBrandsAndModelsAsyncResult;
+                        var result = response.ImportAllBrandsAndModelsResult;
                         this.showInformationDialog(result);
                     }, serviceData, this);
 			}
