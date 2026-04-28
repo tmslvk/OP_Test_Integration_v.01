@@ -2,7 +2,7 @@
 <Resources Culture="uk-UA">
 	<Group Type="String">
 		<Items>
-			<Item Name="Caption" Value="Страница редактирования: &quot;Брэнд автомобиля&quot;" />
+			<Item Name="Caption" Value="Страница редактирования: &quot;Марки автомобилей&quot;" />
 		</Items>
 	</Group>
 </Resources>

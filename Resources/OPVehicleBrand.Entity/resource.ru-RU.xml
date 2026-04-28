@@ -2,11 +2,12 @@
 <Resources Culture="ru-RU">
 	<Group Type="String">
 		<Items>
-			<Item Name="Caption" Value="Брэнд автомобиля" />
+			<Item Name="Caption" Value="Марки автомобилей" />
 			<Item Name="Columns.OPExternalId.Caption" Value="Внешний строковый идентификатор" />
 			<Item Name="Columns.OPExternalNumericId.Caption" Value="Внешний числовой идентификатор " />
 			<Item Name="Columns.OPExternalUpdatedAt.Caption" Value="Обновлен" />
 			<Item Name="Columns.OPName.Caption" Value="Название" />
+			<Item Name="Columns.OPNotes.Caption" Value="Заметки" />
 			<Item Name="EventsProcessSchema.Caption" Value="Бизнес-процесс" />
 		</Items>
 	</Group>

@@ -3,13 +3,23 @@
     "UId": "da629734-064b-2c63-678a-760202116317",
     "Name": "OP_Test_Integration_v.01",
     "BPMSoftVersion": "1.8.0",
-    "ModifiedOnUtc": "\/Date(1777357729000)\/",
+    "ModifiedOnUtc": "\/Date(1777367933000)\/",
     "Maintainer": "Customer",
     "DependsOn": [
       {
         "UId": "5be3998b-c5c3-42bb-a01c-2e4149059a97",
         "PackageVersion": "1.0.0",
         "Name": "Base"
+      },
+      {
+        "UId": "613fd913-be03-46ce-909b-f44e4225469e",
+        "PackageVersion": "1.0.0",
+        "Name": "UIv2"
+      },
+      {
+        "UId": "a7d9c356-450c-46d7-bc85-72dca4e280ba",
+        "PackageVersion": "1.0.0",
+        "Name": "NUI"
       }
     ]
   }

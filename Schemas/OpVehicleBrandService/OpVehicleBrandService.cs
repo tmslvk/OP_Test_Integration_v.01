@@ -1,35 +1,43 @@
+using BPMSoft.Configuration.WUserConnectionService;
 using BPMSoft.Core;
 using BPMSoft.Core.DB;
 using BPMSoft.Core.Entities;
+using BPMSoft.Web.Common;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.ServiceModel;
+using System.ServiceModel.Activation;
+using System.ServiceModel.Web;
 using System.Threading.Tasks;
 
 namespace BPMSoft.Configuration.OPVehicleBrandService
 {
 
-    public class OPVehicleBrandService
+    [ServiceContract]
+    [AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Required)]
+    public class OPVehicleBrandService : BaseService
     {
-        private readonly UserConnection _userConnection;
+        private string ApiUrl => "https://api.cars-base.ru/";
+        private string ApiToken => "test";
 
-        private readonly string _apiUrl;
-        private readonly string _apiToken;
-
+        private UserConnection _userConnection;
         private Dictionary<string, DateTime> _existingBrands;
 
-        public OPVehicleBrandService(UserConnection userConnection)
-        {
-            _userConnection = userConnection;
 
-            _apiUrl = BPMSoft.Core.Configuration.SysSettings.GetValue<string>(_userConnection, "VehicleApiUrl", string.Empty);
-            _apiToken = BPMSoft.Core.Configuration.SysSettings.GetValue<string>(_userConnection, "VehicleApiToken", string.Empty);
-        }
-
+        [OperationContract]
+        [WebInvoke(Method = "POST",
+            RequestFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Wrapped,
+            ResponseFormat = WebMessageFormat.Json)]
         public async Task ImportAllBrandsAndModelsAsync()
         {
-            var endpoint = $"full?token={_apiToken}";
+            _userConnection = UserConnection;
+
+            var testData = BPMSoft.Core.Configuration.SysSettings.GetValue<string>(UserConnection, "VehicleApiToken", string.Empty);
+
+            var endpoint = $"full?token={ApiToken}";
             var response = await GetFromApiAsync<VehicleBrandDto>(endpoint);
 
             LoadExistingData();
@@ -42,7 +50,7 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
 
         public async Task ImportConfigurationsAsync()
         {
-            var endpoint = $"configurations?token={_apiToken}";
+            var endpoint = $"configurations?token={ApiToken}";
             var response = await GetFromApiAsync<VehicleConfigurationDto>(endpoint);
 
             foreach (var config in response.Data)
@@ -53,7 +61,7 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
 
         public async Task ImportGenerationsAsync()
         {
-            var endpoint = $"generations?token={_apiToken}";
+            var endpoint = $"generations?token={ApiToken}";
             var response = await GetFromApiAsync<VehicleGenerationDto>(endpoint);
 
             foreach (var gen in response.Data)
@@ -106,6 +114,7 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
                 .Set("OPName", Column.Parameter(dto.Name))
                 .Set("OPCountry", Column.Parameter(dto.Country))
                 .Set("OPExternalUpdatedAt", Column.Parameter(dto.UpdatedAt));
+
             insert.Execute();
         }
 
@@ -116,19 +125,20 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
                 .Set("OPCountry", Column.Parameter(dto.Country))
                 .Set("OPExternalUpdatedAt", Column.Parameter(dto.UpdatedAt))
                 .Where("OPExternalId").IsEqual(Column.Parameter(dto.ExternalId));
+
             update.Execute();
         }
 
         private async Task<CarsBaseResponse<T>> GetFromApiAsync<T>(string endpoint)
         {
-            if (string.IsNullOrEmpty(_apiUrl) || string.IsNullOrEmpty(_apiToken))
+            if (string.IsNullOrEmpty(ApiUrl) || string.IsNullOrEmpty(ApiToken))
             {
-                throw new Exception("Ошибка интеграции: Не заполнены системные настройки [cite: 19, 60]");
+                throw new Exception("Ошибка интеграции: Не заполнены системные настройки");
             }
 
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(_apiUrl);
+                client.BaseAddress = new Uri(ApiUrl);
                 try
                 {
                     var responseMessage = await client.GetAsync(endpoint);

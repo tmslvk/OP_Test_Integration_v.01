@@ -1,0 +1,13 @@
+﻿{
+  "Descriptor": {
+    "UId": "e1f8258d-445a-4693-bf5a-60a73792d4b1",
+    "Name": "OPVehicleBrandTag",
+    "ModifiedOnUtc": "\/Date(1777373482000)\/",
+    "Parent": {
+      "UId": "9e3f203c-e905-4de5-9468-335b193f2439",
+      "Name": "BaseTag"
+    },
+    "ManagerName": "EntitySchemaManager",
+    "Caption": "Тег раздела Брэнд автомобиля"
+  }
+}
