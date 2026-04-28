@@ -7,10 +7,10 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace BPMSoft.Configuration.OpVehicleBrandService
+namespace BPMSoft.Configuration.OPVehicleBrandService
 {
 
-    public class OpVehicleBrandService
+    public class OPVehicleBrandService
     {
         private readonly UserConnection _userConnection;
 
@@ -19,7 +19,7 @@ namespace BPMSoft.Configuration.OpVehicleBrandService
 
         private Dictionary<string, DateTime> _existingBrands;
 
-        public OpVehicleBrandService(UserConnection userConnection)
+        public OPVehicleBrandService(UserConnection userConnection)
         {
             _userConnection = userConnection;
 
@@ -112,10 +112,10 @@ namespace BPMSoft.Configuration.OpVehicleBrandService
         private void UpdateBrand(VehicleBrandDto dto)
         {
             var update = new Update(_userConnection, "OpVehicleBrand")
-                .Set("OpName", Column.Parameter(dto.Name))
-                .Set("OpCountry", Column.Parameter(dto.Country))
-                .Set("OpExternalUpdatedAt", Column.Parameter(dto.UpdatedAt))
-                .Where("OpExternalId").IsEqual(Column.Parameter(dto.ExternalId));
+                .Set("OPName", Column.Parameter(dto.Name))
+                .Set("OPCountry", Column.Parameter(dto.Country))
+                .Set("OPExternalUpdatedAt", Column.Parameter(dto.UpdatedAt))
+                .Where("OPExternalId").IsEqual(Column.Parameter(dto.ExternalId));
             update.Execute();
         }
 
@@ -137,7 +137,7 @@ namespace BPMSoft.Configuration.OpVehicleBrandService
                     var content = await responseMessage.Content.ReadAsStringAsync();
                     return JsonConvert.DeserializeObject<CarsBaseResponse<T>>(content);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     throw;
                 }
