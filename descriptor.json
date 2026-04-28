@@ -1,0 +1,16 @@
+﻿{
+  "Descriptor": {
+    "UId": "da629734-064b-2c63-678a-760202116317",
+    "Name": "OP_Test_Integration_v.01",
+    "BPMSoftVersion": "1.8.0",
+    "ModifiedOnUtc": "\/Date(1777357729000)\/",
+    "Maintainer": "Customer",
+    "DependsOn": [
+      {
+        "UId": "5be3998b-c5c3-42bb-a01c-2e4149059a97",
+        "PackageVersion": "1.0.0",
+        "Name": "Base"
+      }
+    ]
+  }
+}
