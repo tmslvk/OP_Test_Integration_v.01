@@ -1,0 +1,9 @@
+﻿{
+  "Descriptor": {
+    "UId": "0763e917-473c-4782-b0e4-67fcbad1cdf5",
+    "Name": "OPBaseIntegrationLogger",
+    "ModifiedOnUtc": "\/Date(1777382716000)\/",
+    "ManagerName": "SourceCodeSchemaManager",
+    "Caption": "Базовый логгер"
+  }
+}

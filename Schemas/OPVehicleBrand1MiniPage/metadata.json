@@ -1,0 +1,11 @@
+= MetaData.Schema.UId "f9acd50d-12ad-488b-8ce4-0d528b4fa557"
+= MetaData.Schema.A2 "OPVehicleBrand1MiniPage"
+= MetaData.Schema.B6 "da629734-064b-2c63-678a-760202116317"
+= MetaData.Schema.B8 "1.8.0.14107"
+= MetaData.Schema.HD1 "8e06a577-08e4-424e-bd89-798a34e1b928"
+= MetaData.Schema.HD5 []
++ MetaData.Schema.HD20 []
++ MetaData.Schema.HD21 []
+- MetaData.Schema.B7
+- MetaData.Schema.HD12
++ MetaData.Schema.B7 false

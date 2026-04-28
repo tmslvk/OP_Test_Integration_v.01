@@ -3,7 +3,7 @@
     "UId": "da629734-064b-2c63-678a-760202116317",
     "Name": "OP_Test_Integration_v.01",
     "BPMSoftVersion": "1.8.0",
-    "ModifiedOnUtc": "\/Date(1777367933000)\/",
+    "ModifiedOnUtc": "\/Date(1777382376000)\/",
     "Maintainer": "Customer",
     "DependsOn": [
       {
@@ -15,6 +15,10 @@
         "UId": "613fd913-be03-46ce-909b-f44e4225469e",
         "PackageVersion": "1.0.0",
         "Name": "UIv2"
+      },
+      {
+        "UId": "7c94bde8-1695-8574-3aaf-87c648147fff",
+        "Name": "OrangeProcess.Utils"
       },
       {
         "UId": "a7d9c356-450c-46d7-bc85-72dca4e280ba",
