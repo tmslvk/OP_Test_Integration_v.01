@@ -4,6 +4,7 @@
 		<Items>
 			<Item Name="Caption" Value="Схема раздела: &quot;Марки автомобилей&quot;" />
 			<Item Name="LocalizableStrings.Caption.Value" Value="Марки автомобилей" />
+			<Item Name="LocalizableStrings.ImportButtonCaption.Value" Value="Обновить данные" />
 		</Items>
 	</Group>
 </Resources>
