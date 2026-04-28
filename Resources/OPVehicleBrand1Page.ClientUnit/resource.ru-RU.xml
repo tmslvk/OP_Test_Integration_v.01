@@ -3,6 +3,8 @@
 	<Group Type="String">
 		<Items>
 			<Item Name="Caption" Value="Страница редактирования: &quot;Марки автомобилей&quot;" />
+			<Item Name="LocalizableStrings.GeneralInformationTabCaption.Value" Value="Общая информация" />
+			<Item Name="LocalizableStrings.OPVehicleModelDetailDetailCaptionOnPage.Value" Value="Модель автомобиля" />
 		</Items>
 	</Group>
 </Resources>

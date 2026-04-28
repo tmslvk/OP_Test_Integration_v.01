@@ -11,6 +11,14 @@ define("OPVehicleBrand1Page", [], function() {
 					"masterColumn": "Id",
 					"detailColumn": "OPVehicleBrand"
 				}
+			},
+			"OPVehicleModelDetail": {
+				"schemaName": "OPSchema1cb27b9fDetail",
+				"entitySchemaName": "OPVehicleModel",
+				"filter": {
+					"detailColumn": "OPBrand",
+					"masterColumn": "Id"
+				}
 			}
 		}/**SCHEMA_DETAILS*/,
 		businessRules: /**SCHEMA_BUSINESS_RULES*/{}/**SCHEMA_BUSINESS_RULES*/,
@@ -54,23 +62,6 @@ define("OPVehicleBrand1Page", [], function() {
 			},
 			{
 				"operation": "insert",
-				"name": "OPExternalId7547dba7-75d6-46b6-8a64-3a6b59238331",
-				"values": {
-					"layout": {
-						"colSpan": 11,
-						"rowSpan": 1,
-						"column": 0,
-						"row": 1,
-						"layoutName": "Header"
-					},
-					"bindTo": "OPExternalId"
-				},
-				"parentName": "Header",
-				"propertyName": "items",
-				"index": 1
-			},
-			{
-				"operation": "insert",
 				"name": "CreatedOn6347be89-954f-4f8a-9978-ea643a6681f4",
 				"values": {
 					"layout": {
@@ -84,24 +75,24 @@ define("OPVehicleBrand1Page", [], function() {
 				},
 				"parentName": "Header",
 				"propertyName": "items",
-				"index": 2
+				"index": 1
 			},
 			{
 				"operation": "insert",
-				"name": "ModifiedOn289d981d-df75-4cd9-ac3d-b4237a1c67f9",
+				"name": "OPExternalId7547dba7-75d6-46b6-8a64-3a6b59238331",
 				"values": {
 					"layout": {
 						"colSpan": 11,
 						"rowSpan": 1,
 						"column": 0,
-						"row": 2,
+						"row": 1,
 						"layoutName": "Header"
 					},
-					"bindTo": "ModifiedOn"
+					"bindTo": "OPExternalId"
 				},
 				"parentName": "Header",
 				"propertyName": "items",
-				"index": 3
+				"index": 2
 			},
 			{
 				"operation": "insert",
@@ -115,6 +106,23 @@ define("OPVehicleBrand1Page", [], function() {
 						"layoutName": "Header"
 					},
 					"bindTo": "OPNotes"
+				},
+				"parentName": "Header",
+				"propertyName": "items",
+				"index": 3
+			},
+			{
+				"operation": "insert",
+				"name": "ModifiedOn289d981d-df75-4cd9-ac3d-b4237a1c67f9",
+				"values": {
+					"layout": {
+						"colSpan": 11,
+						"rowSpan": 1,
+						"column": 0,
+						"row": 2,
+						"layoutName": "Header"
+					},
+					"bindTo": "ModifiedOn"
 				},
 				"parentName": "Header",
 				"propertyName": "items",
@@ -173,10 +181,10 @@ define("OPVehicleBrand1Page", [], function() {
 			},
 			{
 				"operation": "insert",
-				"name": "NotesAndFilesTab",
+				"name": "GeneralInformation",
 				"values": {
 					"caption": {
-						"bindTo": "Resources.Strings.NotesAndFilesTabCaption"
+						"bindTo": "Resources.Strings.GeneralInformationTabCaption"
 					},
 					"items": [],
 					"order": 0
@@ -184,6 +192,31 @@ define("OPVehicleBrand1Page", [], function() {
 				"parentName": "Tabs",
 				"propertyName": "tabs",
 				"index": 0
+			},
+			{
+				"operation": "insert",
+				"name": "OPVehicleModelDetail",
+				"values": {
+					"itemType": 2,
+					"markerValue": "added-detail"
+				},
+				"parentName": "GeneralInformation",
+				"propertyName": "items",
+				"index": 0
+			},
+			{
+				"operation": "insert",
+				"name": "NotesAndFilesTab",
+				"values": {
+					"caption": {
+						"bindTo": "Resources.Strings.NotesAndFilesTabCaption"
+					},
+					"items": [],
+					"order": 1
+				},
+				"parentName": "Tabs",
+				"propertyName": "tabs",
+				"index": 1
 			},
 			{
 				"operation": "insert",
