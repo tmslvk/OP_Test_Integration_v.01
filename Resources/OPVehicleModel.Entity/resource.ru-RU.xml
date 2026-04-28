@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Resources Culture="ru-RU">
+	<Group Type="String">
+		<Items>
+			<Item Name="Caption" Value="Модель автомобиля" />
+			<Item Name="Columns.OPBodyType.Caption" Value="Кузов" />
+			<Item Name="Columns.OPBrand.Caption" Value="Марка" />
+			<Item Name="Columns.OPExternalBrandId.Caption" Value="Внешний идентификатор марки" />
+			<Item Name="Columns.OPExternalId.Caption" Value="Внешний идентификатор" />
+			<Item Name="Columns.OPExternalUpdatedAt.Caption" Value="Обновлен" />
+			<Item Name="Columns.OPGeneration.Caption" Value="Поколение" />
+			<Item Name="Columns.OPName.Caption" Value="Название модели" />
+			<Item Name="EventsProcessSchema.Caption" Value="Бизнес-процесс" />
+		</Items>
+	</Group>
+</Resources>

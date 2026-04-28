@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Resources Culture="ru-RU">
+	<Group Type="String">
+		<Items>
+			<Item Name="Caption" Value="Тип кузова автомобиля" />
+			<Item Name="Columns.OPExternalBodyType.Caption" Value="Внешний тип кузова" />
+			<Item Name="Columns.OPExternalBrandId.Caption" Value="Внешний идентификатор марки" />
+			<Item Name="Columns.OPExternalGenerationId.Caption" Value="Внешний идентификатор поколения" />
+			<Item Name="Columns.OPExternalId.Caption" Value="Внешний идентификатор" />
+			<Item Name="Columns.OPExternalModelId.Caption" Value="Внешний идентификатор модели" />
+			<Item Name="EventsProcessSchema.Caption" Value="Бизнес-процесс" />
+		</Items>
+	</Group>
+</Resources>

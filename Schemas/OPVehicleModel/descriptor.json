@@ -1,0 +1,13 @@
+﻿{
+  "Descriptor": {
+    "UId": "5021a28d-e441-452a-a05e-4e421113896c",
+    "Name": "OPVehicleModel",
+    "ModifiedOnUtc": "\/Date(1777364432000)\/",
+    "Parent": {
+      "UId": "1bab9dcf-17d5-49f8-9536-8e0064f1dce0",
+      "Name": "BaseEntity"
+    },
+    "ManagerName": "EntitySchemaManager",
+    "Caption": "Модель автомобиля"
+  }
+}
