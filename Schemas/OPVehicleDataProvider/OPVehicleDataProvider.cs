@@ -1,3 +1,4 @@
+using BPMSoft.Configuration.OPCarsBaseIntegration.Logger;
 using BPMSoft.Configuration.Validation;
 using BPMSoft.Core;
 using BPMSoft.Web.Common;
@@ -18,11 +19,12 @@ namespace BPMSoft.Configuration.Providers
 
         private readonly string _apiUrl;
         private readonly string _apiToken;
-
+        private readonly UserConnection _userConnection;
         private string MarkEndPoint => $"{MARK_ENDPOINT}?token={_apiToken}";
 
         public OPVehicleDataProvider(UserConnection userConnection)
         {
+            this._userConnection = userConnection;
             var url = Core.Configuration.SysSettings.GetValue(userConnection, "VehicleApiUrl", string.Empty);
             var token = Core.Configuration.SysSettings.GetValue(userConnection, "VehicleApiToken", string.Empty);
 
@@ -36,6 +38,7 @@ namespace BPMSoft.Configuration.Providers
             try
             {
                 var response = GetFromApi<VehicleBrandDto>(MarkEndPoint);
+                OPCarsBaseIntegrationLogger.LogResponse(_userConnection, new Guid(), response);
 
                 if (response.IsFailure)
                     return response.Error;
@@ -44,6 +47,7 @@ namespace BPMSoft.Configuration.Providers
             }
             catch (Exception ex)
             {
+                OPCarsBaseIntegrationLogger.LogError(_userConnection, new Guid(), ex);
                 return OPErrors.General.Fatal(ex.Message);
             }
 
@@ -69,9 +73,9 @@ namespace BPMSoft.Configuration.Providers
                 string jsonResponse = webClient.DownloadString(url);
 
                 var apiResponse = JsonConvert.DeserializeObject<CarsBaseResponse<T>>(jsonResponse);
-
+                OPCarsBaseIntegrationLogger.LogResponse(_userConnection, new Guid(), apiResponse);
                 return apiResponse;
-            }
+            }            
         }
     }
 

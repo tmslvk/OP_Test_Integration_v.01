@@ -1,8 +1,9 @@
-namespace BPMSoft.Configuration.OP1CIntegration.Logger
+namespace BPMSoft.Configuration.OPCarsBaseIntegration.Logger
 {
     using BPMSoft.Common;
     using BPMSoft.Configuration.Logger;
-    using BPMSoft.Configuration.OP1CIntegrationModels.Exceptions;
+    using BPMSoft.Configuration.OPCarsBaseIntegrationModels.Exceptions;
+    using BPMSoft.Configuration.Validation;
     using BPMSoft.Core;
     using System;
     using System.Collections.Generic;
@@ -36,6 +37,21 @@ namespace BPMSoft.Configuration.OP1CIntegration.Logger
             {
                 { "OPErrorText", errorText },
                 { "OPErrorType", errorType }
+            });
+        }
+
+        public virtual void LogOPError(UserConnection connection, Guid logId, OPError exception)
+        {
+            if (logId.IsEmpty())
+                logId = CreateLog(connection);
+
+            var errorText = $"{exception.Message}";
+            var errorType = exception.Code;
+
+            connection.UpdateEntityById(SchemaName, logId, new Dictionary<string, object>()
+            {
+                { "OPErrorText", errorText },
+                { "OPNotes", errorType }
             });
         }
 

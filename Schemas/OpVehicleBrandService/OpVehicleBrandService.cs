@@ -1,5 +1,7 @@
+using BPMSoft.Configuration.OPCarsBaseIntegration.Logger;
 using BPMSoft.Configuration.Providers;
 using BPMSoft.Configuration.Validation;
+using BPMSoft.Configuration.WUserConnectionService;
 using BPMSoft.Core;
 using BPMSoft.Core.DB;
 using BPMSoft.Core.Entities;
@@ -34,6 +36,7 @@ namespace BPMSoft.Configuration
                 // var dataProvider = ClassFactory.Get<OPVehicleDataProvider>(new ConstructorArgument("userConnection", UserConnection));
                 var dataProvider = new OPVehicleDataProvider(UserConnection);
                 var response = dataProvider.GetBrands();
+                OPCarsBaseIntegrationLogger.LogResponse(UserConnection, new Guid(), response);
 
                 if (response.IsFailure)
                     return response.Error.Message;
@@ -54,6 +57,7 @@ namespace BPMSoft.Configuration
                     }
                     catch
                     {
+                        OPCarsBaseIntegrationLogger.LogError(UserConnection, new Guid(), new Exception("dbExecutor error"));
                         dbExecutor.RollbackTransaction();
                         throw;
                     }
@@ -62,6 +66,7 @@ namespace BPMSoft.Configuration
             }
             catch (Exception ex)
             {
+                OPCarsBaseIntegrationLogger.LogError(UserConnection, new Guid(), ex);
                 return ex.Message;
             }
 

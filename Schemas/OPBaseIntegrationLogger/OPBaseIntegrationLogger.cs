@@ -1,6 +1,7 @@
 namespace BPMSoft.Configuration.Logger
 {
     using BPMSoft.Common;
+    using BPMSoft.Configuration.TelephonyCallRecordService;
     using BPMSoft.Core;
     using Newtonsoft.Json;
     using System;

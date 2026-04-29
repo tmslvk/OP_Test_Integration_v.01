@@ -1,4 +1,4 @@
-namespace BPMSoft.Configuration.OP1CIntegrationModels
+namespace BPMSoft.Configuration.OPCarsBaseIntegrationModels
 {
     using System;
     using System.Runtime.Serialization;
@@ -22,7 +22,7 @@ namespace BPMSoft.Configuration.OP1CIntegrationModels
     }
 }
 
-namespace BPMSoft.Configuration.OP1CIntegrationModels.Exceptions
+namespace BPMSoft.Configuration.OPCarsBaseIntegrationModels.Exceptions
 {
     using System;
     public class ExceptionAPI : Exception
