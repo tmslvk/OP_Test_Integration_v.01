@@ -3,19 +3,19 @@ using System.Runtime.Serialization;
 
 namespace BPMSoft.Configuration.Validation
 {
-    [DataContract]
+    [DataContract(Name = "Result")]
+    [KnownType(typeof(OPError))]
     public class OPResult<TValue, TError>
     {
         [DataMember]
         public TValue Value { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "error")]
         public TError Error { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "isSuccess")]
         public bool IsSuccess { get; set; }
 
-        [DataMember]
         public bool IsFailure => !IsSuccess;
 
         public OPResult() { }

@@ -9,6 +9,7 @@ using BPMSoft.Core.Factories;
 using BPMSoft.Web.Common;
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Activation;
 using System.ServiceModel.Web;
@@ -28,18 +29,18 @@ namespace BPMSoft.Configuration
             RequestFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Wrapped,
             ResponseFormat = WebMessageFormat.Json)]
-        public string ImportBrands()
+
+        public OPResult<int, OPError> ImportBrands()
         {
 
             try
             {
-                // var dataProvider = ClassFactory.Get<OPVehicleDataProvider>(new ConstructorArgument("userConnection", UserConnection));
-                var dataProvider = new OPVehicleDataProvider(UserConnection);
+                var dataProvider = ClassFactory.Get<OPVehicleDataProvider>(new ConstructorArgument("userConnection", UserConnection));
                 var response = dataProvider.GetBrands();
                 OPCarsBaseIntegrationLogger.LogResponse(UserConnection, new Guid(), response);
 
                 if (response.IsFailure)
-                    return response.Error.Message;
+                    return response.Error;
 
 
                 LoadExistingData();
@@ -62,12 +63,12 @@ namespace BPMSoft.Configuration
                         throw;
                     }
                 }
-                return $"Марки обновлены";
+                return response.Value.Count;
             }
             catch (Exception ex)
             {
                 OPCarsBaseIntegrationLogger.LogError(UserConnection, new Guid(), ex);
-                return ex.Message;
+                return OPErrors.General.Fatal(ex.Message);
             }
 
         }
@@ -138,4 +139,5 @@ namespace BPMSoft.Configuration
         }
 
     }
+
 }
