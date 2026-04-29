@@ -1,0 +1,13 @@
+﻿{
+  "Descriptor": {
+    "UId": "eb9b5a1b-f6fc-413b-8310-53ef75e7c219",
+    "Name": "OPBaseIntegrationLog",
+    "ModifiedOnUtc": "\/Date(1777384731000)\/",
+    "Parent": {
+      "UId": "1bab9dcf-17d5-49f8-9536-8e0064f1dce0",
+      "Name": "BaseEntity"
+    },
+    "ManagerName": "EntitySchemaManager",
+    "Caption": "Базовый объект для логов интеграции"
+  }
+}

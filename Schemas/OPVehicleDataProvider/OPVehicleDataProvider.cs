@@ -1,3 +1,4 @@
+using BPMSoft.Configuration.OPCarsBaseIntegration.Logger;
 using BPMSoft.Configuration.Validation;
 using BPMSoft.Core;
 using Newtonsoft.Json;
@@ -21,8 +22,11 @@ namespace BPMSoft.Configuration.Providers
         private readonly string _apiUrl;
         private readonly string _apiToken;
 
+        private readonly UserConnection _userConnection;
+
         public OPVehicleDataProvider(UserConnection userConnection)
         {
+            _userConnection = userConnection;
             var url = Core.Configuration.SysSettings.GetValue(userConnection, "VehicleApiUrl", string.Empty);
             var token = Core.Configuration.SysSettings.GetValue(userConnection, "VehicleApiToken", string.Empty);
 
@@ -74,6 +78,7 @@ namespace BPMSoft.Configuration.Providers
             {
                 var response = GetFromApi<TData>(endpoint);
 
+
                 if (response.IsFailure)
                     return response.Error;
 
@@ -94,20 +99,35 @@ namespace BPMSoft.Configuration.Providers
             if(string.IsNullOrEmpty(_apiToken))
                 return OPErrors.API.InvalidApiUrl();
 
-            var url = $"{_apiUrl}/{endpoint}token={_apiToken}";
+            var url = $"{_apiUrl}/{endpoint}";
+            Guid logId = Guid.Empty;
 
-            using (var webClient = new WebClient())
+            try
             {
-                webClient.Encoding = Encoding.UTF8;
-                webClient.Headers.Add("user-agent", "BPMSoft-Integration-Client");
-                webClient.Headers.Add("Accept", "application/json");
+               
+                logId = OPCarsBaseIntegrationLogger.StartRequest(
+                    _userConnection,
+                    nameof(GetBrands),
+                    url
+                );
 
+                using (var webClient = new WebClient())
+                {
+                    webClient.Encoding = Encoding.UTF8;
+                    webClient.Headers.Add("user-agent", "BPMSoft-Integration-Client");
+                    webClient.Headers.Add("Accept", "application/json");
 
-                string jsonResponse = webClient.DownloadString(url);
+                    string jsonResponse = webClient.DownloadString(url);
 
-                var apiResponse = JsonConvert.DeserializeObject<CarsBaseResponse<T>>(jsonResponse);
-
-                return apiResponse;
+                    var apiResponse = JsonConvert.DeserializeObject<CarsBaseResponse<T>>(jsonResponse);
+                    OPCarsBaseIntegrationLogger.CompleteResponse(_userConnection, logId, nameof(GetFromApi), apiResponse);
+                    return apiResponse;
+                }
+            }
+            catch (Exception ex)
+            {
+                OPCarsBaseIntegrationLogger.LogError(_userConnection, logId, ex, true);
+                throw;
             }
         }
     }

@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Resources Culture="ru-RU">
+	<Group Type="String">
+		<Items>
+			<Item Name="Caption" Value="Базовый объект для логов интеграции" />
+			<Item Name="Columns.OPErrorText.Caption" Value="Текст ошибки" />
+			<Item Name="Columns.OPErrorType.Caption" Value="Тип ошибки" />
+			<Item Name="Columns.OPMethodName.Caption" Value="Название метода" />
+			<Item Name="Columns.OPRequestBody.Caption" Value="Тело запроса" />
+			<Item Name="Columns.OPResponseBody.Caption" Value="Тело ответа" />
+			<Item Name="Columns.OPUrl.Caption" Value="Url запроса" />
+			<Item Name="EventsProcessSchema.Caption" Value="Бизнес-процесс" />
+		</Items>
+	</Group>
+</Resources>

@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Resources Culture="ru-RU">
+	<Group Type="String">
+		<Items>
+			<Item Name="Caption" Value="Лог интеграции с CarsBase" />
+			<Item Name="Columns.OPName.Caption" Value="Название" />
+			<Item Name="Columns.OPNotes.Caption" Value="Заметки" />
+		</Items>
+	</Group>
+</Resources>
