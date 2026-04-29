@@ -1,0 +1,13 @@
+﻿{
+  "Descriptor": {
+    "UId": "78c6136a-d1e0-4a92-94b0-ba37f86cb9b6",
+    "Name": "OPCarsBaseIntegrationLog1MiniPage",
+    "ModifiedOnUtc": "\/Date(1777449963000)\/",
+    "Parent": {
+      "UId": "8e06a577-08e4-424e-bd89-798a34e1b928",
+      "Name": "BaseMiniPage"
+    },
+    "ManagerName": "ClientUnitSchemaManager",
+    "Caption": "OPCarsBaseIntegrationLog1MiniPage"
+  }
+}

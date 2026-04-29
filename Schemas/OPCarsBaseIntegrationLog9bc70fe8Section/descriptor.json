@@ -1,0 +1,13 @@
+﻿{
+  "Descriptor": {
+    "UId": "fb614b85-c51a-44ee-8de4-df7f1e7f0820",
+    "Name": "OPCarsBaseIntegrationLog9bc70fe8Section",
+    "ModifiedOnUtc": "\/Date(1777449522000)\/",
+    "Parent": {
+      "UId": "7912fb69-4fee-429f-8b23-93943c35d66d",
+      "Name": "BaseSectionV2"
+    },
+    "ManagerName": "ClientUnitSchemaManager",
+    "Caption": "Схема раздела: \"Лог интеграции с CarsBase\""
+  }
+}

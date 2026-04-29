@@ -17,13 +17,19 @@ define("OPVehicleBrand0d1717ebSection", ["ServiceHelper"], function(ServiceHelpe
 		]/**SCHEMA_DIFF*/,
 		methods: {
 			onImportButtonClick: function()	{
-				
+							
 				var serviceData = {};
 				
-				ServiceHelper.callService("OPVehicleBrandService", "ImportAllBrandsAndModelsAsync",
+				ServiceHelper.callService("OPVehicleBrandService", "ImportBrands",
                     function(response) {
-                        var result = response.ImportAllBrandsAndModelsAsyncResult;
-                        this.showInformationDialog(result);
+                        var result = response.ImportBrandsResult;
+
+						if(result.IsFailure)
+                        	this.showInformationDialog(result.Error);
+
+						else
+							this.showInformationDialog(result.Value);
+
                     }, serviceData, this);
 			}
 		}

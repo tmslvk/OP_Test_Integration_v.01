@@ -1,0 +1,13 @@
+﻿{
+  "Descriptor": {
+    "UId": "e0c3a783-2fc9-4ef9-814e-20277e36ebcf",
+    "Name": "OPCarsBaseIntegrationLogFile",
+    "ModifiedOnUtc": "\/Date(1777449543000)\/",
+    "Parent": {
+      "UId": "556c5867-60a7-4456-aae1-a57a122bef70",
+      "Name": "File"
+    },
+    "ManagerName": "EntitySchemaManager",
+    "Caption": "Файл и ссылка объекта Лог интеграции с CarsBase"
+  }
+}
