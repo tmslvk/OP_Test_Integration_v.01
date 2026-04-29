@@ -7,7 +7,7 @@ namespace BPMSoft.Configuration.Validation
     [KnownType(typeof(OPError))]
     public class OPResult<TValue, TError>
     {
-        [DataMember]
+        [DataMember(Name = "value")]
         public TValue Value { get; set; }
 
         [DataMember(Name = "error")]

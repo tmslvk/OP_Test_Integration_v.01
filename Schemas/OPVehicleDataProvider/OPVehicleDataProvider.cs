@@ -15,11 +15,10 @@ namespace BPMSoft.Configuration.Providers
     public class OPVehicleDataProvider
     {
         private const string MARK_ENDPOINT = "marks";
+        private const string MODEL_ENDPOINT = "models";
 
         private readonly string _apiUrl;
         private readonly string _apiToken;
-
-        private string MarkEndPoint => $"{MARK_ENDPOINT}?token={_apiToken}";
 
         public OPVehicleDataProvider(UserConnection userConnection)
         {
@@ -32,10 +31,32 @@ namespace BPMSoft.Configuration.Providers
         }
 
         public OPResult<List<VehicleBrandDto>, OPError> GetBrands()
-        {         
+        {
+            var endpoint = $"{MARK_ENDPOINT}?";
+
+            return GetData<VehicleBrandDto>(endpoint);
+        } 
+
+        public OPResult<List<VehicleModelDto>, OPError> GetModels()
+        {
+            var endpoint = $"{MODEL_ENDPOINT}?";
+
+            return GetData<VehicleModelDto>(endpoint);
+        }
+
+        public OPResult<List<VehicleModelDto>, OPError> GetModelsByMarkId(string markId) 
+        {
+            var endpoint = $"{MODEL_ENDPOINT}?mark_id={markId}&";
+
+            return GetData<VehicleModelDto>(endpoint);
+        }
+
+
+        public OPResult<List<TData>, OPError> GetData<TData>(string endpoint)
+        {
             try
             {
-                var response = GetFromApi<VehicleBrandDto>(MarkEndPoint);
+                var response = GetFromApi<TData>(endpoint);
 
                 if (response.IsFailure)
                     return response.Error;
@@ -46,9 +67,9 @@ namespace BPMSoft.Configuration.Providers
             {
                 return OPErrors.General.Fatal(ex.Message);
             }
-
         }
-        
+
+
         private OPResult<CarsBaseResponse<T>, OPError> GetFromApi<T>(string endpoint)
         {
             if (string.IsNullOrEmpty(_apiUrl))
@@ -57,7 +78,7 @@ namespace BPMSoft.Configuration.Providers
             if(string.IsNullOrEmpty(_apiToken))
                 return OPErrors.API.InvalidApiUrl();
 
-            var url = $"{_apiUrl}/{endpoint}";
+            var url = $"{_apiUrl}/{endpoint}token={_apiToken}";
 
             using (var webClient = new WebClient())
             {

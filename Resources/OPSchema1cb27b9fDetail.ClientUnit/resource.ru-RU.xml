@@ -4,6 +4,7 @@
 		<Items>
 			<Item Name="Caption" Value="Схема детали: &quot;Модель автомобиля&quot;" />
 			<Item Name="LocalizableStrings.Caption.Value" Value="Модель автомобиля" />
+			<Item Name="LocalizableStrings.ImportButtonCaption.Value" Value="Обновить данные" />
 		</Items>
 	</Group>
 </Resources>

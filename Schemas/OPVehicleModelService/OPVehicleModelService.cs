@@ -7,7 +7,6 @@ using BPMSoft.Core.Factories;
 using BPMSoft.Web.Common;
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Activation;
 using System.ServiceModel.Web;
@@ -17,7 +16,7 @@ namespace BPMSoft.Configuration
 
     [ServiceContract]
     [AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Required)]
-    public class OPVehicleBrandService : BaseService
+    public class OPVehicleModelService : BaseService
     {
 
         private Dictionary<string, DateTime> _existingData;
@@ -28,17 +27,17 @@ namespace BPMSoft.Configuration
             BodyStyle = WebMessageBodyStyle.Wrapped,
             ResponseFormat = WebMessageFormat.Json)]
 
-        public OPResult<int, OPError> ImportBrands()
+        public OPResult<int, OPError> ImportModels(Guid brandId, string externalBrandId)
         {
 
             try
             {
                 var dataProvider = ClassFactory.Get<OPVehicleDataProvider>(new ConstructorArgument("userConnection", UserConnection));
-                var response = dataProvider.GetBrands();
+
+                var response = dataProvider.GetModelsByMarkId(externalBrandId);
 
                 if (response.IsFailure)
                     return response.Error;
-
 
                 LoadExistingData();
 
@@ -47,9 +46,9 @@ namespace BPMSoft.Configuration
                     dbExecutor.StartTransaction();
                     try
                     {
-                        foreach (var brand in response.Value)
+                        foreach (var model in response.Value)
                         {
-                            ProcessBrand(dbExecutor, brand);
+                            ProcessModel(dbExecutor, model, brandId);
                         }
                         dbExecutor.CommitTransaction();
                     }
@@ -72,7 +71,7 @@ namespace BPMSoft.Configuration
         {
             _existingData = new Dictionary<string, DateTime>();
 
-            var esq = new EntitySchemaQuery(UserConnection.EntitySchemaManager, "OPVehicleBrand");
+            var esq = new EntitySchemaQuery(UserConnection.EntitySchemaManager, "OPVehicleModel");
             esq.PrimaryQueryColumn.IsAlwaysSelect = true;
 
             var extIdCol = esq.AddColumn("OPExternalId");
@@ -89,48 +88,44 @@ namespace BPMSoft.Configuration
             }
         }
 
-        private void ProcessBrand(DBExecutor executor, VehicleBrandDto brandDto)
+        private void ProcessModel(DBExecutor executor, VehicleModelDto modelDto, Guid brandId)
         {
-            if (brandDto == null || string.IsNullOrEmpty(brandDto.ExternalId)) return;
+            if (modelDto == null || string.IsNullOrEmpty(modelDto.ExternalId)) return;
 
-            bool exists = _existingData.TryGetValue(brandDto.ExternalId, out DateTime lastUpdate);
+            bool exists = _existingData.TryGetValue(modelDto.ExternalId, out DateTime lastUpdate);
 
             if (!exists)
             {
-                _existingData.Add(brandDto.ExternalId, brandDto.UpdatedAt);
-                InsertBrand(executor, brandDto);
+                _existingData.Add(modelDto.ExternalId, modelDto.UpdatedAt);
+                InsertBrand(executor, modelDto, brandId);
             }
-            else if (lastUpdate.Date != brandDto.UpdatedAt.Date)
+            else if (lastUpdate.Date != modelDto.UpdatedAt.Date)
             {
-                UpdateBrand(executor, brandDto);
+                UpdateBrand(executor, modelDto);
             }
 
         }
 
-        private Guid InsertBrand(DBExecutor executor, VehicleBrandDto dto)
+        private void InsertBrand(DBExecutor executor, VehicleModelDto dto, Guid brandId)
         {
-            Guid id = Guid.NewGuid();
-
             new Insert(UserConnection)
-                 .Into("OPVehicleBrand")
-                 .Set("Id", Column.Parameter(id))
-                 .Set("OPExternalId", Column.Parameter(dto.ExternalId))
-                 .Set("OPExternalNumericId", Column.Parameter(dto.ExternalNumericId))
+                 .Into("OPVehicleModel")
+                 .Set("Id", Column.Parameter(Guid.NewGuid()))
                  .Set("OPName", Column.Parameter(dto.Name))
+                 .Set("OPBrandId", Column.Parameter(brandId))
+                 .Set("OPExternalId", Column.Parameter(dto.ExternalId))
                  .Set("OPExternalUpdatedAt", Column.Parameter(dto.UpdatedAt))
                  .Execute(executor);
-
-            return id;
         }
 
-        private void UpdateBrand(DBExecutor executor, VehicleBrandDto dto)
+        private void UpdateBrand(DBExecutor executor, VehicleModelDto dto)
         {
-            var update = new Update(UserConnection, "OPVehicleBrand")
+             new Update(UserConnection, "OPVehicleBrand")
                 .Set("OPName", Column.Parameter(dto.Name))
                 .Set("OPExternalUpdatedAt", Column.Parameter(dto.UpdatedAt))
-                .Where("OPExternalId").IsEqual(Column.Parameter(dto.ExternalId));
+                .Where("OPExternalId").IsEqual(Column.Parameter(dto.ExternalId))
+                .Execute(executor);
 
-            update.Execute(executor);
         }
 
     }
