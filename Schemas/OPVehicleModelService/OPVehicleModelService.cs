@@ -7,6 +7,7 @@ using BPMSoft.Core.Factories;
 using BPMSoft.Web.Common;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Activation;
 using System.ServiceModel.Web;
@@ -18,8 +19,10 @@ namespace BPMSoft.Configuration
     [AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Required)]
     public class OPVehicleModelService : BaseService
     {
-
+        private OPVehicleDataProvider _dataProvider;
         private Dictionary<string, DateTime> _existingData;
+        private OPBodyTypeService _bodyTypeService;
+        private OPGenerationService _generationService;
 
         [OperationContract]
         [WebInvoke(Method = "POST",
@@ -32,20 +35,26 @@ namespace BPMSoft.Configuration
 
             try
             {
-                var dataProvider = ClassFactory.Get<OPVehicleDataProvider>(new ConstructorArgument("userConnection", UserConnection));
+                _dataProvider = ClassFactory.Get<OPVehicleDataProvider>(new ConstructorArgument("userConnection", UserConnection));
 
-                var response = dataProvider.GetModelsByMarkId(externalBrandId);
+                var response = _dataProvider.GetModelsByMarkId(externalBrandId);
 
                 if (response.IsFailure)
                     return response.Error;
 
-                LoadExistingData();
+                LoadExistingData(brandId);
 
                 using (DBExecutor dbExecutor = UserConnection.EnsureDBConnection())
                 {
                     dbExecutor.StartTransaction();
                     try
                     {
+                        _bodyTypeService = new OPBodyTypeService(UserConnection, _dataProvider);
+                        _generationService = new OPGenerationService(UserConnection, _dataProvider);
+
+                        _bodyTypeService.Initialize();
+                        _generationService.Initialize();
+
                         foreach (var model in response.Value)
                         {
                             ProcessModel(dbExecutor, model, brandId);
@@ -67,7 +76,7 @@ namespace BPMSoft.Configuration
 
         }
 
-        private void LoadExistingData()
+        private void LoadExistingData(Guid brandId)
         {
             _existingData = new Dictionary<string, DateTime>();
 
@@ -76,6 +85,8 @@ namespace BPMSoft.Configuration
 
             var extIdCol = esq.AddColumn("OPExternalId");
             var dateCol = esq.AddColumn("OPExternalUpdatedAt");
+
+            esq.Filters.Add(esq.CreateFilterWithParameters(FilterComparisonType.Equal, "OPBrand", brandId));
 
             var entities = esq.GetEntityCollection(UserConnection);
             foreach (var entity in entities)
@@ -94,37 +105,73 @@ namespace BPMSoft.Configuration
 
             bool exists = _existingData.TryGetValue(modelDto.ExternalId, out DateTime lastUpdate);
 
+            var configResponse = _bodyTypeService.GetConfigurationByModelId(modelDto.ExternalId);
+            var generationResponse = _generationService.GetGenerationByModelId(modelDto.ExternalId);
+
+            Guid bodyTypeId = Guid.Empty;
+            Guid generationId = Guid.Empty;
+
+            if (configResponse.IsSuccess && configResponse.Value != null)
+            {
+                var config = configResponse.Value.FirstOrDefault();
+                bodyTypeId = _bodyTypeService.EnsureValue(executor, config.BodyType, config.ExternalId);
+            }
+
+            if (generationResponse.IsSuccess && generationResponse.Value != null)
+            {
+                var config = generationResponse.Value.FirstOrDefault();
+
+                if (config.BodyType == null)
+                    config.BodyType = $"{config.YearFrom}-{config.YearTo}";
+
+                generationId = _generationService.EnsureValue(executor, config.BodyType, config.ExternalId);
+            }
+
             if (!exists)
             {
                 _existingData.Add(modelDto.ExternalId, modelDto.UpdatedAt);
-                InsertBrand(executor, modelDto, brandId);
+                InsertModel(executor, modelDto, brandId, bodyTypeId, generationId);
             }
             else if (lastUpdate.Date != modelDto.UpdatedAt.Date)
             {
-                UpdateBrand(executor, modelDto);
+                UpdateModel(executor, modelDto, bodyTypeId, generationId);
             }
 
         }
-
-        private void InsertBrand(DBExecutor executor, VehicleModelDto dto, Guid brandId)
+     
+        private void InsertModel(DBExecutor executor, VehicleModelDto dto, Guid brandId, Guid bodyTypeId, Guid generationId)
         {
-            new Insert(UserConnection)
+            var insert = new Insert(UserConnection)
                  .Into("OPVehicleModel")
                  .Set("Id", Column.Parameter(Guid.NewGuid()))
                  .Set("OPName", Column.Parameter(dto.Name))
                  .Set("OPBrandId", Column.Parameter(brandId))
                  .Set("OPExternalId", Column.Parameter(dto.ExternalId))
-                 .Set("OPExternalUpdatedAt", Column.Parameter(dto.UpdatedAt))
-                 .Execute(executor);
-        }
+                 .Set("OPExternalUpdatedAt", Column.Parameter(dto.UpdatedAt));
 
-        private void UpdateBrand(DBExecutor executor, VehicleModelDto dto)
+            if (bodyTypeId != Guid.Empty)
+                insert.Set("OPBodyTypeId", Column.Parameter(bodyTypeId));
+
+            if (generationId != Guid.Empty) 
+                insert.Set("OPGenerationId", Column.Parameter(generationId));
+
+            insert.Execute(executor);
+        }
+        
+        private void UpdateModel(DBExecutor executor, VehicleModelDto dto, Guid bodyTypeId, Guid generationId)
         {
-             new Update(UserConnection, "OPVehicleBrand")
-                .Set("OPName", Column.Parameter(dto.Name))
-                .Set("OPExternalUpdatedAt", Column.Parameter(dto.UpdatedAt))
-                .Where("OPExternalId").IsEqual(Column.Parameter(dto.ExternalId))
-                .Execute(executor);
+            var update = new Update(UserConnection, "OPVehicleModel")
+               .Set("OPName", Column.Parameter(dto.Name))
+               .Set("OPExternalUpdatedAt", Column.Parameter(dto.UpdatedAt));          
+
+            if (bodyTypeId != Guid.Empty)
+                update.Set("OPBodyTypeId", Column.Parameter(bodyTypeId));
+            if (generationId != Guid.Empty)
+                update.Set("OPGenerationId", Column.Parameter(generationId));
+
+            update.Where("OPExternalId").IsEqual(Column.Parameter(dto.ExternalId));
+
+            update.Execute(executor);
 
         }
 

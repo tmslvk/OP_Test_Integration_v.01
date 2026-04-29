@@ -1,6 +1,5 @@
 using BPMSoft.Configuration.Validation;
 using BPMSoft.Core;
-using BPMSoft.Web.Common;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,6 +15,8 @@ namespace BPMSoft.Configuration.Providers
     {
         private const string MARK_ENDPOINT = "marks";
         private const string MODEL_ENDPOINT = "models";
+        private const string CONFIGURATION_ENDPOINT = "configurations";
+        private const string GENERATION_ENDPOINT = "generations";
 
         private readonly string _apiUrl;
         private readonly string _apiToken;
@@ -49,6 +50,21 @@ namespace BPMSoft.Configuration.Providers
             var endpoint = $"{MODEL_ENDPOINT}?mark_id={markId}&";
 
             return GetData<VehicleModelDto>(endpoint);
+        }
+
+
+        public OPResult<List<VehicleConfigurationDto>, OPError> GetConfigurationByModelId(string modelId)
+        {
+            var endpoint = $"{CONFIGURATION_ENDPOINT}?model_id={modelId}&";
+
+            return GetData<VehicleConfigurationDto>(endpoint);
+        }
+
+        public OPResult<List<VehicleGenerationDto>, OPError> GetGenerationByModelId(string modelId)
+        {
+            var endpoint = $"{GENERATION_ENDPOINT}?model_id={modelId}&";
+
+            return GetData<VehicleGenerationDto>(endpoint);
         }
 
 
@@ -170,14 +186,14 @@ namespace BPMSoft.Configuration.Providers
         [JsonProperty("model_id")]
         public string ModelExternalId { get; set; }
 
-        [JsonProperty("name")]
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string BodyType { get; set; }
 
         [JsonProperty("year_from")]
-        public DateTime YearFrom { get; set; }
+        public int YearFrom { get; set; }
 
         [JsonProperty("year_to")]
-        public DateTime YearTo { get; set; }
+        public int YearTo { get; set; }
 
         [JsonProperty("updated_at")]
         public DateTime UpdatedAt { get; set; }

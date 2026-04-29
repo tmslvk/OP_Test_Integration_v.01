@@ -4,6 +4,7 @@
 		<Items>
 			<Item Name="Caption" Value="Поколение автомобиля" />
 			<Item Name="Columns.OPClass.Caption" Value="Класс" />
+			<Item Name="Columns.OPExternalId.Caption" Value="Внешний айди" />
 			<Item Name="EventsProcessSchema.Caption" Value="Бизнес-процесс" />
 		</Items>
 	</Group>
