@@ -24,11 +24,11 @@ define("OPVehicleBrand0d1717ebSection", ["ServiceHelper"], function(ServiceHelpe
                     function(response) {
                         var result = response.ImportBrandsResult;
 
-						if(result.IsFailure)
-                        	this.showInformationDialog(result.Error);
+						if(result.isSuccess)
+                        	this.showInformationDialog(result.value);
 
 						else
-							this.showInformationDialog(result.Value);
+							this.showInformationDialog(result.error);
 
                     }, serviceData, this);
 			}

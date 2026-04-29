@@ -3,13 +3,13 @@ using System.Runtime.Serialization;
 
 namespace BPMSoft.Configuration.Validation
 {
-    [DataContract]
+    [DataContract(Name = "Error")]
     public class OPError
     {
-        [DataMember]
+        [DataMember(Name = "code")]
         public string Code { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "message")]
         public string Message { get; set; }
 
         public OPError() { }
