@@ -55,7 +55,15 @@
   "E17": "OPClassId",
   "E18": "OPClassName"
 }
-~ MetaData.Schema.D2 ["ae0e45ca-c495-4fe7-a39d-3ab7278e1617","e80190a5-03b2-4095-90f7-a193a960adee","ebf6bb93-8aa6-4a01-900d-c6ea67affe21","9928edec-4272-425a-93bb-48743fee4b04","3015559e-cbc6-406a-88af-07f7930be832","736c30a7-c0ec-4fa9-b034-2552b319b633","9e53fd7c-dde4-4502-a64c-b9e34148108b","3fabd836-6a53-4d8d-9069-6df88d9dae1e","5cb07968-caf2-746e-a76e-e22e675c161c"]
++ MetaData.Schema.D2 {
+  "UId": "830697d4-9f27-8c14-4e51-df44e8335f84",
+  "A2": "OPExternalId",
+  "A3": "01e7a1c2-eca2-4e97-bef4-888497cc050b",
+  "A4": "01e7a1c2-eca2-4e97-bef4-888497cc050b",
+  "A5": "f72d48f3-b1cc-4203-bb3c-992acb35f828",
+  "S2": "ddb3a1ee-07e8-4d62-b7a9-d0e618b00fbd"
+}
+~ MetaData.Schema.D2 ["ae0e45ca-c495-4fe7-a39d-3ab7278e1617","e80190a5-03b2-4095-90f7-a193a960adee","ebf6bb93-8aa6-4a01-900d-c6ea67affe21","9928edec-4272-425a-93bb-48743fee4b04","3015559e-cbc6-406a-88af-07f7930be832","736c30a7-c0ec-4fa9-b034-2552b319b633","9e53fd7c-dde4-4502-a64c-b9e34148108b","3fabd836-6a53-4d8d-9069-6df88d9dae1e","5cb07968-caf2-746e-a76e-e22e675c161c","830697d4-9f27-8c14-4e51-df44e8335f84"]
 = MetaData.Schema.D20.A2 "OPVehicleGenerationEvents"
 - MetaData.Schema.EG1.B6
 - MetaData.Schema.EG1.BK29

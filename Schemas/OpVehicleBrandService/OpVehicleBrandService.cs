@@ -22,7 +22,7 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
     public class OPVehicleBrandService : BaseService
     {
 
-        private Dictionary<string, DateTime> _existingBrands;
+        private Dictionary<string, DateTime> _existingData;
 
         [OperationContract]
         [WebInvoke(Method = "POST",
@@ -86,7 +86,7 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
 
         private void LoadExistingData()
         {
-            _existingBrands = new Dictionary<string, DateTime>();
+            _existingData = new Dictionary<string, DateTime>();
 
             var esq = new EntitySchemaQuery(UserConnection.EntitySchemaManager, "OPVehicleBrand");
             esq.PrimaryQueryColumn.IsAlwaysSelect = true;
@@ -99,8 +99,8 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
             {
                 string extId = entity.GetTypedColumnValue<string>(extIdCol.Name);
 
-                if (!string.IsNullOrEmpty(extId) && !_existingBrands.ContainsKey(extId))
-                    _existingBrands.Add(extId, entity.GetTypedColumnValue<DateTime>(dateCol.Name));
+                if (!string.IsNullOrEmpty(extId) && !_existingData.ContainsKey(extId))
+                    _existingData.Add(extId, entity.GetTypedColumnValue<DateTime>(dateCol.Name));
 
             }
         }
@@ -109,11 +109,11 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
         {
             if (brandDto == null || string.IsNullOrEmpty(brandDto.ExternalId)) return;
 
-            bool exists = _existingBrands.TryGetValue(brandDto.ExternalId, out DateTime lastUpdate);
+            bool exists = _existingData.TryGetValue(brandDto.ExternalId, out DateTime lastUpdate);
 
             if (!exists)
             {
-                _existingBrands.Add(brandDto.ExternalId, brandDto.UpdatedAt);
+                _existingData.Add(brandDto.ExternalId, brandDto.UpdatedAt);
                 InsertBrand(executor, brandDto);
             }
             else if (lastUpdate.Date != brandDto.UpdatedAt.Date)

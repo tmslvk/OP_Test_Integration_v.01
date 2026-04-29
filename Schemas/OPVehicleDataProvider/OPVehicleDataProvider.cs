@@ -1,7 +1,6 @@
 using BPMSoft.Configuration.OPCarsBaseIntegration.Logger;
 using BPMSoft.Configuration.Validation;
 using BPMSoft.Core;
-using BPMSoft.Web.Common;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,15 +15,18 @@ namespace BPMSoft.Configuration.Providers
     public class OPVehicleDataProvider
     {
         private const string MARK_ENDPOINT = "marks";
+        private const string MODEL_ENDPOINT = "models";
+        private const string CONFIGURATION_ENDPOINT = "configurations";
+        private const string GENERATION_ENDPOINT = "generations";
 
         private readonly string _apiUrl;
         private readonly string _apiToken;
+
         private readonly UserConnection _userConnection;
-        private string MarkEndPoint => $"{MARK_ENDPOINT}?token={_apiToken}";
 
         public OPVehicleDataProvider(UserConnection userConnection)
         {
-            this._userConnection = userConnection;
+            _userConnection = userConnection;
             var url = Core.Configuration.SysSettings.GetValue(userConnection, "VehicleApiUrl", string.Empty);
             var token = Core.Configuration.SysSettings.GetValue(userConnection, "VehicleApiToken", string.Empty);
 
@@ -35,19 +37,47 @@ namespace BPMSoft.Configuration.Providers
 
         public OPResult<List<VehicleBrandDto>, OPError> GetBrands()
         {
-            Guid logId = Guid.Empty;
+            var endpoint = $"{MARK_ENDPOINT}?";
 
+            return GetData<VehicleBrandDto>(endpoint);
+        } 
+
+        public OPResult<List<VehicleModelDto>, OPError> GetModels()
+        {
+            var endpoint = $"{MODEL_ENDPOINT}?";
+
+            return GetData<VehicleModelDto>(endpoint);
+        }
+
+        public OPResult<List<VehicleModelDto>, OPError> GetModelsByMarkId(string markId) 
+        {
+            var endpoint = $"{MODEL_ENDPOINT}?mark_id={markId}&";
+
+            return GetData<VehicleModelDto>(endpoint);
+        }
+
+
+        public OPResult<List<VehicleConfigurationDto>, OPError> GetConfigurationByModelId(string modelId)
+        {
+            var endpoint = $"{CONFIGURATION_ENDPOINT}?model_id={modelId}&";
+
+            return GetData<VehicleConfigurationDto>(endpoint);
+        }
+
+        public OPResult<List<VehicleGenerationDto>, OPError> GetGenerationByModelId(string modelId)
+        {
+            var endpoint = $"{GENERATION_ENDPOINT}?model_id={modelId}&";
+
+            return GetData<VehicleGenerationDto>(endpoint);
+        }
+
+
+        public OPResult<List<TData>, OPError> GetData<TData>(string endpoint)
+        {
             try
             {
-                var url = $"{_apiUrl}/{MarkEndPoint}";
+                var response = GetFromApi<TData>(endpoint);
 
-                logId = OPCarsBaseIntegrationLogger.StartRequest(
-                    _userConnection,
-                    nameof(GetBrands),
-                    url
-                );
-
-                var response = GetFromApi<VehicleBrandDto>(MarkEndPoint, logId);
 
                 if (response.IsFailure)
                     return response.Error;
@@ -56,17 +86,31 @@ namespace BPMSoft.Configuration.Providers
             }
             catch (Exception ex)
             {
-                OPCarsBaseIntegrationLogger.LogError(_userConnection, logId, ex, true);
                 return OPErrors.General.Fatal(ex.Message);
             }
         }
 
-        private OPResult<CarsBaseResponse<T>, OPError> GetFromApi<T>(string endpoint, Guid logId)
+
+        private OPResult<CarsBaseResponse<T>, OPError> GetFromApi<T>(string endpoint)
         {
-            var url = $"{_apiUrl}/{endpoint}";
+            if (string.IsNullOrEmpty(_apiUrl))
+                return OPErrors.API.InvalidApiToken();
+
+            if(string.IsNullOrEmpty(_apiToken))
+                return OPErrors.API.InvalidApiUrl();
+
+            var url = $"{_apiUrl}/{endpoint}token={_apiToken}";
+            Guid logId = Guid.Empty;
 
             try
             {
+               
+                logId = OPCarsBaseIntegrationLogger.StartRequest(
+                    _userConnection,
+                    nameof(GetBrands),
+                    url
+                );
+
                 using (var webClient = new WebClient())
                 {
                     webClient.Encoding = Encoding.UTF8;
@@ -76,7 +120,9 @@ namespace BPMSoft.Configuration.Providers
                     string jsonResponse = webClient.DownloadString(url);
 
                     var apiResponse = JsonConvert.DeserializeObject<CarsBaseResponse<T>>(jsonResponse);
+
                     OPCarsBaseIntegrationLogger.CompleteResponse(_userConnection, logId, nameof(GetFromApi), apiResponse);
+
                     return apiResponse;
                 }
             }
@@ -162,14 +208,14 @@ namespace BPMSoft.Configuration.Providers
         [JsonProperty("model_id")]
         public string ModelExternalId { get; set; }
 
-        [JsonProperty("name")]
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string BodyType { get; set; }
 
         [JsonProperty("year_from")]
-        public DateTime YearFrom { get; set; }
+        public int YearFrom { get; set; }
 
         [JsonProperty("year_to")]
-        public DateTime YearTo { get; set; }
+        public int YearTo { get; set; }
 
         [JsonProperty("updated_at")]
         public DateTime UpdatedAt { get; set; }
