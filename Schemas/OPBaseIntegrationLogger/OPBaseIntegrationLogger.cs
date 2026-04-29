@@ -49,7 +49,7 @@ namespace BPMSoft.Configuration.Logger
         }
         protected string GenerateLogName(string methodName)
         {
-            return $"Log_{methodName}_{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}";
+            return $"Log_{methodName}_{DateTime.UtcNow:yyyyMMdd_HHmmss}";
         }
 
         protected Guid CreateLog(UserConnection connection, string methodName)

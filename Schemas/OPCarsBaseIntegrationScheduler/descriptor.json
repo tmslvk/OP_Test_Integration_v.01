@@ -1,0 +1,9 @@
+﻿{
+  "Descriptor": {
+    "UId": "db3c2679-eacb-455b-8d1c-3fc5a932e080",
+    "Name": "OPCarsBaseIntegrationScheduler",
+    "ModifiedOnUtc": "\/Date(1777460655000)\/",
+    "ManagerName": "SourceCodeSchemaManager",
+    "Caption": "Планировщик CarsBase"
+  }
+}

@@ -14,7 +14,7 @@ using System.ServiceModel;
 using System.ServiceModel.Activation;
 using System.ServiceModel.Web;
 
-namespace BPMSoft.Configuration
+namespace BPMSoft.Configuration.OPVehicleBrandService
 {
 
     [ServiceContract]

@@ -37,7 +37,7 @@ namespace BPMSoft.Configuration.OPCarsBaseIntegration.Logger
 {
                 { "OPErrorText", errorText },
                 { "OPErrorType", errorType },
-                { "OPName", $"Log_ERROR_{errorType}_{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}" }
+                { "OPName", $"Log_ERROR_{errorType}_{DateTime.UtcNow:yyyyMMdd_HHmmss}" }
             });
         }
 
