@@ -99,7 +99,7 @@ namespace BPMSoft.Configuration.Providers
             if(string.IsNullOrEmpty(_apiToken))
                 return OPErrors.API.InvalidApiUrl();
 
-            var url = $"{_apiUrl}/{endpoint}";
+            var url = $"{_apiUrl}/{endpoint}token={_apiToken}";
             Guid logId = Guid.Empty;
 
             try
@@ -120,7 +120,9 @@ namespace BPMSoft.Configuration.Providers
                     string jsonResponse = webClient.DownloadString(url);
 
                     var apiResponse = JsonConvert.DeserializeObject<CarsBaseResponse<T>>(jsonResponse);
+
                     OPCarsBaseIntegrationLogger.CompleteResponse(_userConnection, logId, nameof(GetFromApi), apiResponse);
+
                     return apiResponse;
                 }
             }
