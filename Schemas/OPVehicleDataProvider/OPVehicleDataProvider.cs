@@ -34,11 +34,20 @@ namespace BPMSoft.Configuration.Providers
         }
 
         public OPResult<List<VehicleBrandDto>, OPError> GetBrands()
-        {         
+        {
+            Guid logId = Guid.Empty;
+
             try
             {
-                var response = GetFromApi<VehicleBrandDto>(MarkEndPoint);
-                OPCarsBaseIntegrationLogger.LogResponse(_userConnection, new Guid(), response);
+                var url = $"{_apiUrl}/{MarkEndPoint}";
+
+                logId = OPCarsBaseIntegrationLogger.StartRequest(
+                    _userConnection,
+                    nameof(GetBrands),
+                    url
+                );
+
+                var response = GetFromApi<VehicleBrandDto>(MarkEndPoint, logId);
 
                 if (response.IsFailure)
                     return response.Error;
@@ -47,35 +56,35 @@ namespace BPMSoft.Configuration.Providers
             }
             catch (Exception ex)
             {
-                OPCarsBaseIntegrationLogger.LogError(_userConnection, new Guid(), ex);
+                OPCarsBaseIntegrationLogger.LogError(_userConnection, logId, ex, true);
                 return OPErrors.General.Fatal(ex.Message);
             }
-
         }
-        
-        private OPResult<CarsBaseResponse<T>, OPError> GetFromApi<T>(string endpoint)
+
+        private OPResult<CarsBaseResponse<T>, OPError> GetFromApi<T>(string endpoint, Guid logId)
         {
-            if (string.IsNullOrEmpty(_apiUrl))
-                return OPErrors.API.InvalidApiToken();
-
-            if(string.IsNullOrEmpty(_apiToken))
-                return OPErrors.API.InvalidApiUrl();
-
             var url = $"{_apiUrl}/{endpoint}";
 
-            using (var webClient = new WebClient())
+            try
             {
-                webClient.Encoding = Encoding.UTF8;
-                webClient.Headers.Add("user-agent", "BPMSoft-Integration-Client");
-                webClient.Headers.Add("Accept", "application/json");
+                using (var webClient = new WebClient())
+                {
+                    webClient.Encoding = Encoding.UTF8;
+                    webClient.Headers.Add("user-agent", "BPMSoft-Integration-Client");
+                    webClient.Headers.Add("Accept", "application/json");
 
+                    string jsonResponse = webClient.DownloadString(url);
 
-                string jsonResponse = webClient.DownloadString(url);
-
-                var apiResponse = JsonConvert.DeserializeObject<CarsBaseResponse<T>>(jsonResponse);
-                OPCarsBaseIntegrationLogger.LogResponse(_userConnection, new Guid(), apiResponse);
-                return apiResponse;
-            }            
+                    var apiResponse = JsonConvert.DeserializeObject<CarsBaseResponse<T>>(jsonResponse);
+                    OPCarsBaseIntegrationLogger.CompleteResponse(_userConnection, logId, nameof(GetFromApi), apiResponse);
+                    return apiResponse;
+                }
+            }
+            catch (Exception ex)
+            {
+                OPCarsBaseIntegrationLogger.LogError(_userConnection, logId, ex, true);
+                throw;
+            }
         }
     }
 

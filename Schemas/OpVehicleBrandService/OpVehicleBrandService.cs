@@ -32,45 +32,56 @@ namespace BPMSoft.Configuration
 
         public OPResult<int, OPError> ImportBrands()
         {
+            Guid logId = Guid.Empty;
 
             try
             {
-                var dataProvider = ClassFactory.Get<OPVehicleDataProvider>(new ConstructorArgument("userConnection", UserConnection));
+                var dataProvider = ClassFactory.Get<OPVehicleDataProvider>(
+                    new ConstructorArgument("userConnection", UserConnection));
+                var requestContext = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.RequestUri.LocalPath.ToString();
+                logId = OPCarsBaseIntegrationLogger.StartRequest(
+                    UserConnection,
+                    nameof(ImportBrands),
+                    $"{requestContext}"
+                );
+
                 var response = dataProvider.GetBrands();
-                OPCarsBaseIntegrationLogger.LogResponse(UserConnection, new Guid(), response);
 
                 if (response.IsFailure)
                     return response.Error;
-
 
                 LoadExistingData();
 
                 using (DBExecutor dbExecutor = UserConnection.EnsureDBConnection())
                 {
                     dbExecutor.StartTransaction();
+
                     try
                     {
                         foreach (var brand in response.Value)
                         {
                             ProcessBrand(dbExecutor, brand);
                         }
+
                         dbExecutor.CommitTransaction();
                     }
-                    catch
+                    catch (Exception dbEx)
                     {
-                        OPCarsBaseIntegrationLogger.LogError(UserConnection, new Guid(), new Exception("dbExecutor error"));
+                        OPCarsBaseIntegrationLogger.LogError(UserConnection, logId, dbEx, true);
                         dbExecutor.RollbackTransaction();
                         throw;
                     }
                 }
+
+                OPCarsBaseIntegrationLogger.CompleteResponse(UserConnection, logId, nameof(ImportBrands),response.Value.Count);
+
                 return response.Value.Count;
             }
             catch (Exception ex)
             {
-                OPCarsBaseIntegrationLogger.LogError(UserConnection, new Guid(), ex);
+                OPCarsBaseIntegrationLogger.LogError(UserConnection, logId, ex, true);
                 return OPErrors.General.Fatal(ex.Message);
             }
-
         }
 
         private void LoadExistingData()

@@ -6,6 +6,9 @@ namespace BPMSoft.Configuration.Logger
     using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
+    using System.Reflection;
+    using System.Reflection.Emit;
+    using System.Security.Policy;
 
     public abstract class OPBaseIntegrationLogger
     {
@@ -44,48 +47,25 @@ namespace BPMSoft.Configuration.Logger
                 });
             }
         }
-
-        protected Guid CreateLog(UserConnection connection)
+        protected string GenerateLogName(string methodName)
         {
-            return connection.CreateEntity(SchemaName, new Dictionary<string, object>() { })?.PrimaryColumnValue ?? Guid.Empty;
+            return $"Log_{methodName}_{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}";
+        }
+
+        protected Guid CreateLog(UserConnection connection, string methodName)
+        {
+            return connection.CreateEntity(SchemaName, new Dictionary<string, object>()
+            {
+                { "OPName", GenerateLogName(methodName) }
+            })?.PrimaryColumnValue ?? Guid.Empty;
         }
 
         #endregion
 
-        public virtual Guid LogRequest(UserConnection connection, string methodName, string url, object request)
-        {
-            return connection.CreateEntity(SchemaName, new Dictionary<string, object>()
-            {
-                { "OPUrl", url },
-                { "OPMethodName", methodName },
-                { "OPRequestBody", ProcessData(request) },
-            })?.PrimaryColumnValue ?? Guid.Empty;
-        }
-
-        public virtual Guid LogRequest(UserConnection connection, string methodName, object request)
-        {
-            return connection.CreateEntity(SchemaName, new Dictionary<string, object>()
-            {
-                { "OPMethodName", methodName },
-                { "OPRequestBody", ProcessData(request) },
-            })?.PrimaryColumnValue ?? Guid.Empty;
-        }
-
-        public virtual void LogResponse(UserConnection connection, Guid logId, object response)
-        {
-            if (logId.IsEmpty())
-                logId = CreateLog(connection);
-
-            connection.UpdateEntityById(SchemaName, logId, new Dictionary<string, object>()
-            {
-                { "OPResponseBody", ProcessData(response) }
-            });
-        }
-
         public virtual void LogError(UserConnection connection, Guid logId, Exception exception, bool withStackTrace = false)
         {
             if (logId.IsEmpty())
-                logId = CreateLog(connection);
+                logId = CreateLog(connection, "AutoCreated");
 
             var errorText = $"{exception.Message}";
             if (withStackTrace)
@@ -95,6 +75,29 @@ namespace BPMSoft.Configuration.Logger
             {
                 { "OPErrorText", errorText },
                 { "OPErrorType",  exception.GetType().Name }
+            });
+        }
+
+        public virtual Guid StartRequest(UserConnection connection, string methodName, string url, object request = null)
+        {
+            return connection.CreateEntity(SchemaName, new Dictionary<string, object>()
+                {
+                    { "OPName", GenerateLogName(methodName) },
+                    { "OPMethodName", methodName },
+                    { "OPUrl", url },
+                    { "OPRequestBody", ProcessData(request) },
+                })?.PrimaryColumnValue ?? Guid.Empty;
+        }
+
+        public virtual void CompleteResponse(UserConnection connection, Guid logId, string methodName, object response)
+        {
+            if (logId.IsEmpty())
+                logId = CreateLog(connection, "AutoCreated");
+
+            connection.UpdateEntityById(SchemaName, logId, new Dictionary<string, object>()
+            {
+                { "OPResponseBody", ProcessData(response) },
+                { "OPName", $"Log_{methodName}_SUCCESS_{DateTime.UtcNow:yyyyMMdd_HHmmss}" }
             });
         }
     }

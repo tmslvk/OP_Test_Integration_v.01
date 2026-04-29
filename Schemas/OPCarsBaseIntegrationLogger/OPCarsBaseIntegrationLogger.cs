@@ -21,7 +21,7 @@ namespace BPMSoft.Configuration.OPCarsBaseIntegration.Logger
         public override void LogError(UserConnection connection, Guid logId, Exception exception, bool withStackTrace = false)
         {
             if (logId.IsEmpty())
-                logId = CreateLog(connection);
+                logId = CreateLog(connection, "AutoCreated");
 
             var errorText = $"{exception.Message}";
             var errorType = exception.GetType().Name;
@@ -34,16 +34,17 @@ namespace BPMSoft.Configuration.OPCarsBaseIntegration.Logger
                 errorText += $"\nStackTrace:\n{exception.StackTrace}";
 
             connection.UpdateEntityById(SchemaName, logId, new Dictionary<string, object>()
-            {
+{
                 { "OPErrorText", errorText },
-                { "OPErrorType", errorType }
+                { "OPErrorType", errorType },
+                { "OPName", $"Log_ERROR_{errorType}_{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}" }
             });
         }
 
         public virtual void LogOPError(UserConnection connection, Guid logId, OPError exception)
         {
             if (logId.IsEmpty())
-                logId = CreateLog(connection);
+                logId = CreateLog(connection, "AutoCreated");
 
             var errorText = $"{exception.Message}";
             var errorType = exception.Code;
@@ -68,14 +69,14 @@ namespace BPMSoft.Configuration.OPCarsBaseIntegration.Logger
 
         #region Methods : Public
 
-        public static Guid LogRequest(UserConnection connection, string methodName, object request) =>
-            Impl.LogRequest(connection, methodName, request);
-
-        public static void LogResponse(UserConnection connection, Guid logId, object response) =>
-            Impl.LogResponse(connection, logId, response);
-
         public static void LogError(UserConnection connection, Guid logId, Exception exception, bool withStackTrace = false) =>
             Impl.LogError(connection, logId, exception, withStackTrace);
+
+        public static Guid StartRequest(UserConnection connection, string methodName, string url, object request = null) =>
+            Impl.StartRequest(connection, methodName, url, request);
+
+        public static void CompleteResponse(UserConnection connection, Guid logId, string methodName,object response) =>
+            Impl.CompleteResponse(connection, logId, methodName, response);
 
         #endregion
     }
