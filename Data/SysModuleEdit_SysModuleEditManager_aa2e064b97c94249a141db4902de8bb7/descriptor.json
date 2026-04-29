@@ -1,14 +1,35 @@
 ﻿{
   "Descriptor": {
-    "UId": "bdc15b95-cb25-4692-8037-4b80418f9faa",
-    "Name": "SysModuleEdit_SysModuleEditManager_b6363a60b9f9454cacfe8efb88c0667e",
-    "ModifiedOnUtc": "\/Date(1777381981000)\/",
+    "UId": "a5b46087-94fd-4403-a2b1-221c65198d3d",
+    "Name": "SysModuleEdit_SysModuleEditManager_aa2e064b97c94249a141db4902de8bb7",
+    "ModifiedOnUtc": "\/Date(1777381807000)\/",
     "InstallType": 0,
     "Schema": {
       "UId": "24666f2d-049f-4867-ae2c-db681c40c001",
       "Name": "SysModuleEdit"
     },
     "Columns": [
+      {
+        "ColumnUId": "a4fcaa97-6bfa-4e5e-a130-6a9515254107",
+        "IsForceUpdate": false,
+        "IsKey": false,
+        "ColumnName": "MiniPageModes",
+        "DataTypeValueUId": "325a73b8-0f47-44a0-8412-7606f78003ac"
+      },
+      {
+        "ColumnUId": "ca35057b-1338-4316-9d6f-8c35f98f5db5",
+        "IsForceUpdate": false,
+        "IsKey": false,
+        "ColumnName": "Position",
+        "DataTypeValueUId": "6b6b74e2-820d-490e-a017-2b73d4ccf2b0"
+      },
+      {
+        "ColumnUId": "ae683a77-0faf-4743-a1c2-abadf29f6e98",
+        "IsForceUpdate": false,
+        "IsKey": false,
+        "ColumnName": "SysPageSchemaUId",
+        "DataTypeValueUId": "23018567-a13c-4320-8687-fd6f9e3699bd"
+      },
       {
         "ColumnUId": "f14f9a76-5ad3-47f9-b175-b7648b7bd340",
         "IsForceUpdate": false,
@@ -17,11 +38,11 @@
         "DataTypeValueUId": "ddb3a1ee-07e8-4d62-b7a9-d0e618b00fbd"
       },
       {
-        "ColumnUId": "ae683a77-0faf-4743-a1c2-abadf29f6e98",
+        "ColumnUId": "eddb01b2-98ff-0905-fdc4-310f76c9f89f",
         "IsForceUpdate": false,
         "IsKey": false,
-        "ColumnName": "SysPageSchemaUId",
-        "DataTypeValueUId": "23018567-a13c-4320-8687-fd6f9e3699bd"
+        "ColumnName": "UseQueryOptimization",
+        "DataTypeValueUId": "90b65bf8-0ffc-4141-8779-2420877af907"
       },
       {
         "ColumnUId": "f7b189f1-06c6-4b54-bb04-eaf91625177f",
@@ -45,6 +66,13 @@
         "DataTypeValueUId": "23018567-a13c-4320-8687-fd6f9e3699bd"
       },
       {
+        "ColumnUId": "a90e57e9-5e2c-40e8-80e2-3ac8b48f9619",
+        "IsForceUpdate": false,
+        "IsKey": false,
+        "ColumnName": "HelpContextId",
+        "DataTypeValueUId": "ddb3a1ee-07e8-4d62-b7a9-d0e618b00fbd"
+      },
+      {
         "ColumnUId": "fcd5ccc3-2a7a-4a9d-b8b8-e78f76efe747",
         "IsForceUpdate": false,
         "IsKey": false,
@@ -59,32 +87,11 @@
         "DataTypeValueUId": "23018567-a13c-4320-8687-fd6f9e3699bd"
       },
       {
-        "ColumnUId": "a90e57e9-5e2c-40e8-80e2-3ac8b48f9619",
+        "ColumnUId": "350ddc16-b017-4661-ae25-33482662a8d2",
         "IsForceUpdate": false,
         "IsKey": false,
-        "ColumnName": "HelpContextId",
-        "DataTypeValueUId": "ddb3a1ee-07e8-4d62-b7a9-d0e618b00fbd"
-      },
-      {
-        "ColumnUId": "a4fcaa97-6bfa-4e5e-a130-6a9515254107",
-        "IsForceUpdate": true,
-        "IsKey": false,
-        "ColumnName": "MiniPageModes",
-        "DataTypeValueUId": "325a73b8-0f47-44a0-8412-7606f78003ac"
-      },
-      {
-        "ColumnUId": "c53035ba-426a-4b98-a5fa-2d2966b2c908",
-        "IsForceUpdate": false,
-        "IsKey": false,
-        "ColumnName": "UseModuleDetails",
-        "DataTypeValueUId": "90b65bf8-0ffc-4141-8779-2420877af907"
-      },
-      {
-        "ColumnUId": "eddb01b2-98ff-0905-fdc4-310f76c9f89f",
-        "IsForceUpdate": true,
-        "IsKey": false,
-        "ColumnName": "UseQueryOptimization",
-        "DataTypeValueUId": "90b65bf8-0ffc-4141-8779-2420877af907"
+        "ColumnName": "MiniPageSchemaUId",
+        "DataTypeValueUId": "23018567-a13c-4320-8687-fd6f9e3699bd"
       },
       {
         "ColumnUId": "a19bf4bf-e22b-49b5-b6e0-918ff6290020",
@@ -94,25 +101,18 @@
         "DataTypeValueUId": "ddb3a1ee-07e8-4d62-b7a9-d0e618b00fbd"
       },
       {
-        "ColumnUId": "ca35057b-1338-4316-9d6f-8c35f98f5db5",
-        "IsForceUpdate": false,
-        "IsKey": false,
-        "ColumnName": "Position",
-        "DataTypeValueUId": "6b6b74e2-820d-490e-a017-2b73d4ccf2b0"
-      },
-      {
-        "ColumnUId": "350ddc16-b017-4661-ae25-33482662a8d2",
-        "IsForceUpdate": true,
-        "IsKey": false,
-        "ColumnName": "MiniPageSchemaUId",
-        "DataTypeValueUId": "23018567-a13c-4320-8687-fd6f9e3699bd"
-      },
-      {
         "ColumnUId": "55132174-2b96-4e0a-830c-b8e952b12c45",
         "IsForceUpdate": false,
         "IsKey": false,
         "ColumnName": "PageCaption",
         "DataTypeValueUId": "ddb3a1ee-07e8-4d62-b7a9-d0e618b00fbd"
+      },
+      {
+        "ColumnUId": "c53035ba-426a-4b98-a5fa-2d2966b2c908",
+        "IsForceUpdate": false,
+        "IsKey": false,
+        "ColumnName": "UseModuleDetails",
+        "DataTypeValueUId": "90b65bf8-0ffc-4141-8779-2420877af907"
       }
     ]
   }
