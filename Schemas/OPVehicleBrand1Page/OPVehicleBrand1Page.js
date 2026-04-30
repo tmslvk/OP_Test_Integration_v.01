@@ -1,4 +1,4 @@
-define("OPVehicleBrand1Page", [], function() {
+define("OPVehicleBrand1Page", ["ServiceHelper"], function (ServiceHelper) {
 	return {
 		entitySchemaName: "OPVehicleBrand",
 		attributes: {},
@@ -23,7 +23,64 @@ define("OPVehicleBrand1Page", [], function() {
 		}/**SCHEMA_DETAILS*/,
 		businessRules: /**SCHEMA_BUSINESS_RULES*/{}/**SCHEMA_BUSINESS_RULES*/,
 		businessRulesMultiplyActions: /**SCHEMA_ANGULAR_BUSINESS_RULES*/{}/**SCHEMA_ANGULAR_BUSINESS_RULES*/,
-		methods: {},
+		methods: {
+
+			onEntityInitialized: function () {
+				this.callParent(arguments);
+				this.checkAndPromptModelImport();
+			},
+
+			checkAndPromptModelImport: function () {
+				var isLoaded = this.get("OPIsModelsLoaded");
+				if (isLoaded) {
+					return;
+				}
+
+				var message = this.get("Resources.Strings.ImportModelsPrompt");
+				this.showConfirmationDialog(message, function (returnCode) {
+					if (returnCode === this.BPMSoft.MessageBoxButtons.YES.returnCode) {
+						this.callImportModelsService();
+					}
+				}, ["yes", "no"]);
+			},
+
+			callImportModelsService: function () {
+
+				this.showBodyMask();
+
+				var serviceData = {
+					brandId: this.get("Id"),
+					externalBrandId: this.get("OPExternalId")
+				};
+
+				ServiceHelper.callService("OPVehicleModelService", "ImportModels",
+					function (response) {
+						this.hideBodyMask();
+
+						var result = response.ImportModelsResult;
+
+						if (result && result.isSuccess) {
+							this.set("OPIsModelsLoaded", true);
+
+							this.save({
+								isSilent: true,
+								callback: function () {
+									this.hideBodyMask();
+									this.showInformationDialog("Данные успешно загружены.");
+
+									this.updateDetail({ detail: "OPVehicleModelDetail" });
+								},
+								scope: this
+							});
+						}
+
+						else
+							this.showInformationDialog(result.error.message);
+
+					}, serviceData, this);
+			}
+
+		},
 		dataModels: /**SCHEMA_DATA_MODELS*/{}/**SCHEMA_DATA_MODELS*/,
 		diff: /**SCHEMA_DIFF*/[
 			{

@@ -4,6 +4,7 @@
 		<Items>
 			<Item Name="Caption" Value="Страница редактирования: &quot;Марки автомобилей&quot;" />
 			<Item Name="LocalizableStrings.GeneralInformationTabCaption.Value" Value="Общая информация" />
+			<Item Name="LocalizableStrings.ImportModelsPrompt.Value" Value="Информация по моделям автомобилей данной марки не загружены. Загрузить?" />
 			<Item Name="LocalizableStrings.OPVehicleModelDetailDetailCaptionOnPage.Value" Value="Модель автомобиля" />
 		</Items>
 	</Group>

@@ -2,7 +2,7 @@
   "Descriptor": {
     "UId": "0d1b2933-9528-4639-a82b-a475d8cb3e9d",
     "Name": "OPVehicleBrand",
-    "ModifiedOnUtc": "\/Date(1777373449000)\/",
+    "ModifiedOnUtc": "\/Date(1777530559000)\/",
     "Parent": {
       "UId": "1bab9dcf-17d5-49f8-9536-8e0064f1dce0",
       "Name": "BaseEntity"

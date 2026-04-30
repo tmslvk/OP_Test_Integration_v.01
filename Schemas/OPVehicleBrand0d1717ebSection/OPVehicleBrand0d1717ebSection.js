@@ -17,11 +17,13 @@ define("OPVehicleBrand0d1717ebSection", ["ServiceHelper"], function(ServiceHelpe
 		]/**SCHEMA_DIFF*/,
 		methods: {
 
-			onImportButtonClick: function()	{				
+			onImportButtonClick: function()	{
+				this.showBodyMask();				
 				var serviceData = {};
 				
 				ServiceHelper.callService("OPVehicleBrandService", "ImportBrands",
                     function(response) {
+						this.hideBodyMask();
                         var result = response.ImportBrandsResult;
 
 						if(result && result.isSuccess){
