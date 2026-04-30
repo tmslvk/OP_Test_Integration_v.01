@@ -23,13 +23,16 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
     {
 
         private Dictionary<string, DateTime> _existingData;
+        public OPVehicleBrandService(UserConnection userConnection)
+        {
+            UserConnection = userConnection;
+        }
 
         [OperationContract]
         [WebInvoke(Method = "POST",
             RequestFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Wrapped,
             ResponseFormat = WebMessageFormat.Json)]
-
         public OPResult<int, OPError> ImportBrands()
         {
             Guid logId = Guid.Empty;
@@ -38,11 +41,11 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
             {
                 var dataProvider = ClassFactory.Get<OPVehicleDataProvider>(
                     new ConstructorArgument("userConnection", UserConnection));
-                var requestContext = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.RequestUri.LocalPath.ToString();
+                //var requestContext = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.RequestUri.LocalPath.ToString();
                 logId = OPCarsBaseIntegrationLogger.StartRequest(
                     UserConnection,
                     nameof(ImportBrands),
-                    $"{requestContext}"
+                    $"asdad"
                 );
 
                 var response = dataProvider.GetBrands();

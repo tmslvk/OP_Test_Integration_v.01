@@ -14,9 +14,13 @@ namespace BPMSoft.Configuration.OPCarsBaseIntegrationJobs
         public Task Execute(IJobExecutionContext context)
         {
 
-            var userConnection =
-                (UserConnection)context.Scheduler.Context.Get("UserConnection");
-            var logId = Guid.Empty;
+            var userConnection = ClassFactory.Get<UserConnection>();
+
+            var logId = OPCarsBaseIntegrationLogger.StartRequest(
+                userConnection,
+                nameof(Execute),
+                $"OPCarsBaseIntegrationGetStockJob/{nameof(Execute)}"
+            );
 
             try
             {
@@ -32,7 +36,7 @@ namespace BPMSoft.Configuration.OPCarsBaseIntegrationJobs
                 throw new JobExecutionException(ex);
             }
 
-            OPCarsBaseIntegrationLogger.CompleteResponse(userConnection, logId, $"OPCarsBaseIntegrationGetStockJob/{nameof(Execute)}", Task.CompletedTask);
+            OPCarsBaseIntegrationLogger.CompleteResponse(userConnection, logId, $"OPCarsBaseIntegrationGetStockJob/{nameof(Execute)}", "JOB_START_"+ Task.CompletedTask);
             return Task.CompletedTask;
         }
     }

@@ -25,6 +25,9 @@ namespace BPMSoft.Configuration.OPCronConverter
             if (type == OPScheduleType.DAILY_AT_02)
                 return "0 0 2 * * ?";
 
+            if (type == OPScheduleType.EVERY_5_MIN)
+                return "*/5 * * * * ?";
+
             return "0 0 * * * ?"; // fallback
         }
     }

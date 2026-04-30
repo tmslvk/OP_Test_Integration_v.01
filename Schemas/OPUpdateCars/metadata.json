@@ -37,6 +37,7 @@
       "B8": "1.8.0.14107",
       "FJ1": [],
       "IJ1": true,
+      "IJ2": 10,
       "BK8": "bb4d6607-026b-4b27-b640-8f5c77c1e89d",
       "IJ10": true,
       "BK15": [],
@@ -64,6 +65,7 @@
           "A5": "da629734-064b-2c63-678a-760202116317",
           "BL7": "11a47caf-a0d5-41fa-a274-a0b11f77447a",
           "BL8": "6c50c8ff-7ab8-4026-803a-c495d8291127",
+          "BM1": 0,
           "BM4": [
             {
               "BL1": "BPMSoft.Core.Process.ProcessSchemaLane",
@@ -98,7 +100,8 @@
           "BL8": "6c50c8ff-7ab8-4026-803a-c495d8291127",
           "BN2": "31;31",
           "BO3": true,
-          "FC1": []
+          "FC1": [],
+          "ED1": false
         },
         {
           "BL1": "BPMSoft.Core.Process.ProcessSchemaTerminateEvent",
@@ -123,14 +126,32 @@
           "A4": "6c50c8ff-7ab8-4026-803a-c495d8291127",
           "A5": "da629734-064b-2c63-678a-760202116317",
           "IL2": "090af33a-781d-4b65-a242-66c6fc45ef72",
-          "BL3": "303;172",
+          "BL3": "196;172",
           "BL7": "0e490dda-e140-4441-b600-6f5c64d024df",
           "BL8": "6c50c8ff-7ab8-4026-803a-c495d8291127",
           "BN2": "69;55",
           "BO3": true,
           "BP2": [],
           "CL2": "FFFFFFFF",
-          "CH1": "var userConnection = Get<UserConnection>(\"UserConnection\");\r\n\r\nAppScheduler.Instance.Context.Put(\"UserConnection\", userConnection);\r\n\r\nvar scheduler = new OPCarsBaseIntegrationScheduler(userConnection);\r\nscheduler.StartGetStockJob();\r\n\r\nreturn true;",
+          "CH1": "var userConnection = Get<UserConnection>(\"UserConnection\");\r\n\r\nvar service = new OPVehicleBrandService(userConnection);\r\nif(service == null)\r\n{\r\n\treturn false;\r\n}\r\n\r\nservice.ImportBrands();\r\nreturn true;",
+          "CH2": true
+        },
+        {
+          "BL1": "BPMSoft.Core.Process.ProcessSchemaScriptTask",
+          "UId": "04e60699-2f8d-406d-87e2-dbba3ff7e704",
+          "A2": "ScriptTask2",
+          "A3": "6c50c8ff-7ab8-4026-803a-c495d8291127",
+          "A4": "6c50c8ff-7ab8-4026-803a-c495d8291127",
+          "A5": "da629734-064b-2c63-678a-760202116317",
+          "IL2": "090af33a-781d-4b65-a242-66c6fc45ef72",
+          "BL3": "400;172",
+          "BL7": "0e490dda-e140-4441-b600-6f5c64d024df",
+          "BL8": "6c50c8ff-7ab8-4026-803a-c495d8291127",
+          "BN2": "69;55",
+          "BO3": true,
+          "BP2": [],
+          "CL2": "FFFFFFFF",
+          "CH1": "var userConnection = Get<UserConnection>(\"UserConnection\");\r\nvar scheduler = new OPCarsBaseIntegrationScheduler(userConnection);\r\nscheduler.StartGetStockJob();\r\nreturn true;",
           "CH2": true
         },
         {
@@ -148,7 +169,7 @@
           "CI5": "FF939598",
           "CI6": 1,
           "CI11": "81;200",
-          "CI12": "303;200"
+          "CI12": "196;200"
         },
         {
           "BL1": "BPMSoft.Core.Process.ProcessSchemaSequenceFlow",
@@ -160,11 +181,28 @@
           "BL7": "0d8351f6-c2f4-4737-bdd9-6fbfe0837fec",
           "BL8": "6c50c8ff-7ab8-4026-803a-c495d8291127",
           "CI1": "0ff18783-46ec-4519-b98e-677d853b0541",
+          "CI2": "04e60699-2f8d-406d-87e2-dbba3ff7e704",
+          "CI3": "null",
+          "CI5": "FF939598",
+          "CI6": 1,
+          "CI11": "265;200",
+          "CI12": "400;200"
+        },
+        {
+          "BL1": "BPMSoft.Core.Process.ProcessSchemaSequenceFlow",
+          "UId": "13a0367a-deb3-4c95-9265-e4e004f28af9",
+          "A2": "SequenceFlow5",
+          "A3": "6c50c8ff-7ab8-4026-803a-c495d8291127",
+          "A4": "6c50c8ff-7ab8-4026-803a-c495d8291127",
+          "A5": "da629734-064b-2c63-678a-760202116317",
+          "BL7": "0d8351f6-c2f4-4737-bdd9-6fbfe0837fec",
+          "BL8": "6c50c8ff-7ab8-4026-803a-c495d8291127",
+          "CI1": "04e60699-2f8d-406d-87e2-dbba3ff7e704",
           "CI2": "ac34bc46-b672-4313-9af6-d5654bff30bf",
           "CI3": "null",
           "CI5": "FF939598",
           "CI6": 1,
-          "CI11": "372;200",
+          "CI11": "469;200",
           "CI12": "600;200"
         }
       ],
