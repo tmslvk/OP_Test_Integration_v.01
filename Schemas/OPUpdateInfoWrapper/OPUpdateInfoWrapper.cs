@@ -24,7 +24,7 @@ namespace BPMSoft.Configuration.OPCarsBaseIntegrationJobs
 
             try
             {
-                var service = ClassFactory.Get<OPVehicleBrandService>(
+                var service = ClassFactory.Get<OPVehicleService>(
                     new ConstructorArgument("userConnection", userConnection));
 
                 OPCarsBaseIntegrationLogger.StartRequest(userConnection, nameof(Execute), $"OPCarsBaseIntegrationGetStockJob/{nameof(Execute)}");

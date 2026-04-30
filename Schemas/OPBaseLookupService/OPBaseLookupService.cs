@@ -3,7 +3,6 @@ using BPMSoft.Configuration.Validation;
 using BPMSoft.Core;
 using BPMSoft.Core.DB;
 using BPMSoft.Core.Entities;
-using BPMSoft.Reporting.DataSource.Abstractions;
 using System;
 using System.Collections.Generic;
 
@@ -13,37 +12,55 @@ namespace BPMSoft.Configuration
     {
         protected readonly UserConnection UserConnection;
         protected readonly string SchemaName;
-        protected Dictionary<string, Guid> Cache;
+
+        protected string CacheKey => $"OP_LookupCache_{SchemaName}";
 
         protected OPBaseLookupService(UserConnection userConnection, string schemaName)
         {
             UserConnection = userConnection;
             SchemaName = schemaName;
-            Cache = new Dictionary<string, Guid>();
+        }
+
+        protected Dictionary<string, Guid> GetCache()
+        {
+            var cache = UserConnection.ApplicationCache[CacheKey] as Dictionary<string, Guid>;
+            return cache ?? new Dictionary<string, Guid>();
+        }
+
+        protected void SaveCache(Dictionary<string, Guid> cache)
+        {
+            UserConnection.ApplicationCache[CacheKey] = cache;
         }
 
         public virtual void Initialize()
         {
+
             var esq = new EntitySchemaQuery(UserConnection.EntitySchemaManager, SchemaName);
             esq.PrimaryQueryColumn.IsAlwaysSelect = true;
             var extIdCol = esq.AddColumn("OPExternalId");
 
             var entities = esq.GetEntityCollection(UserConnection);
+            var freshCache = new Dictionary<string, Guid>();
+
             foreach (var entity in entities)
             {
                 string extId = entity.GetTypedColumnValue<string>(extIdCol.Name);
-                if (!string.IsNullOrEmpty(extId) && !Cache.ContainsKey(extId))
+                if (!string.IsNullOrEmpty(extId) && !freshCache.ContainsKey(extId))
                 {
-                    Cache.Add(extId, entity.PrimaryColumnValue);
+                    freshCache.Add(extId, entity.PrimaryColumnValue);
                 }
             }
+
+            SaveCache(freshCache);
         }
 
         public virtual Guid EnsureValue(DBExecutor executor, string name, string externalId)
         {
             if (string.IsNullOrWhiteSpace(externalId)) return Guid.Empty;
 
-            if (Cache.TryGetValue(externalId, out Guid existingId))
+            var cache = GetCache();
+
+            if (cache.TryGetValue(externalId, out Guid existingId))
             {
                 return existingId;
             }
@@ -56,37 +73,33 @@ namespace BPMSoft.Configuration
                 .Set("Name", Column.Parameter(name));
 
             OnBeforeInsert(insert);
-
             insert.Execute(executor);
 
-            Cache.Add(externalId, newId);
+            cache.Add(externalId, newId);
+            SaveCache(cache);
+
             return newId;
         }
 
         protected virtual void OnBeforeInsert(Insert insert) { }
+
+        public void ClearCache()
+        {
+            UserConnection.ApplicationCache.Remove(CacheKey);
+        }
     }
 
     public class OPBodyTypeService : OPBaseLookupService
     {
         private readonly OPVehicleDataProvider _dataProvider;
-        public OPBodyTypeService(UserConnection userConnection, OPVehicleDataProvider dataProvider)
-            : base(userConnection, "OPVehicleBodyType")
-            => _dataProvider = dataProvider;
-
-        public OPResult<List<VehicleConfigurationDto>, OPError> GetConfigurationByModelId(string modelId)
-            => _dataProvider.GetConfigurationByModelId(modelId);
-        
+        public OPBodyTypeService(UserConnection userConnection) : base(userConnection, "OPVehicleBodyType") { }
+     
     }
 
     public class OPGenerationService : OPBaseLookupService
     {
         private readonly OPVehicleDataProvider _dataProvider;
-        public OPGenerationService(UserConnection userConnection, OPVehicleDataProvider dataProvider)
-            : base(userConnection, "OPVehicleGeneration")
-            => _dataProvider = dataProvider;
+        public OPGenerationService(UserConnection userConnection) : base(userConnection, "OPVehicleGeneration") { }
 
-
-        public OPResult<List<VehicleGenerationDto>, OPError> GetGenerationByModelId(string modelId)
-            => _dataProvider.GetGenerationByModelId(modelId);
     }
 }

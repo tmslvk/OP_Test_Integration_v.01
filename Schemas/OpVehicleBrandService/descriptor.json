@@ -1,9 +1,9 @@
 ﻿{
   "Descriptor": {
-    "UId": "b35abafe-7b07-459f-ab3f-393b33761669",
+    "UId": "60e0970c-bbe5-46d0-8ac7-b94261d7a0a1",
     "Name": "OPVehicleBrandService",
-    "ModifiedOnUtc": "\/Date(1777377018000)\/",
+    "ModifiedOnUtc": "\/Date(1777544608000)\/",
     "ManagerName": "SourceCodeSchemaManager",
-    "Caption": "SourceCode_88618e9"
+    "Caption": "Сервис марок автомобилей"
   }
 }

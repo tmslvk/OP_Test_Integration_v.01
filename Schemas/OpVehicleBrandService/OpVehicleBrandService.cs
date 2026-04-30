@@ -1,61 +1,56 @@
 using BPMSoft.Configuration.OPCarsBaseIntegration.Logger;
 using BPMSoft.Configuration.Providers;
 using BPMSoft.Configuration.Validation;
-using BPMSoft.Configuration.WUserConnectionService;
 using BPMSoft.Core;
 using BPMSoft.Core.DB;
 using BPMSoft.Core.Entities;
 using BPMSoft.Core.Factories;
-using BPMSoft.Web.Common;
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.ServiceModel.Activation;
-using System.ServiceModel.Web;
 
-namespace BPMSoft.Configuration.OPVehicleBrandService
+namespace BPMSoft.Configuration.Services
 {
 
-    [ServiceContract]
-    [AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Required)]
-    public class OPVehicleBrandService : BaseService
+    public class OPVehicleBrandService 
     {
 
-        private Dictionary<string, DateTime> _existingData;
+        private readonly OPVehicleDataProvider _dataProvider;
+        private readonly UserConnection _userConnection;
+
+        private Dictionary<string, ExistingBrand> _existingData;
+
         public OPVehicleBrandService(UserConnection userConnection)
         {
-            UserConnection = userConnection;
-        }
+            _userConnection = userConnection;
 
-        [OperationContract]
-        [WebInvoke(Method = "POST",
-            RequestFormat = WebMessageFormat.Json,
-            BodyStyle = WebMessageBodyStyle.Wrapped,
-            ResponseFormat = WebMessageFormat.Json)]
-        public OPResult<int, OPError> ImportBrands()
+            _dataProvider = ClassFactory.Get<OPVehicleDataProvider>(
+                new ConstructorArgument("userConnection", _userConnection));
+        }
+            
+        public OPResult<List<ImportBrandDto>, OPError> ImportBrands()
         {
+
             Guid logId = Guid.Empty;
 
             try
             {
-                var dataProvider = ClassFactory.Get<OPVehicleDataProvider>(
-                    new ConstructorArgument("userConnection", UserConnection));
-                //var requestContext = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.RequestUri.LocalPath.ToString();
+      
                 logId = OPCarsBaseIntegrationLogger.StartRequest(
-                    UserConnection,
+                    _userConnection,
                     nameof(ImportBrands),
-                    $"asdad"
+                    $"OPVehicleBrand"
                 );
 
-                var response = dataProvider.GetBrands();
+                var response = _dataProvider.GetBrands();
 
                 if (response.IsFailure)
                     return response.Error;
 
                 LoadExistingData();
 
-                using (DBExecutor dbExecutor = UserConnection.EnsureDBConnection())
+                var importBrands = new List<ImportBrandDto>();
+
+                using (DBExecutor dbExecutor = _userConnection.EnsureDBConnection())
                 {
                     dbExecutor.StartTransaction();
 
@@ -63,74 +58,86 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
                     {
                         foreach (var brand in response.Value)
                         {
-                            ProcessBrand(dbExecutor, brand);
+                            var id = ProcessBrand(dbExecutor, brand);
+
+                            importBrands.Add(new ImportBrandDto() { Id = id, ExternalId = brand.ExternalId });
                         }
 
                         dbExecutor.CommitTransaction();
                     }
                     catch (Exception dbEx)
                     {
-                        OPCarsBaseIntegrationLogger.LogError(UserConnection, logId, dbEx, true);
+                        OPCarsBaseIntegrationLogger.LogError(_userConnection, logId, dbEx, true);
                         dbExecutor.RollbackTransaction();
                         throw;
                     }
                 }
 
-                OPCarsBaseIntegrationLogger.CompleteResponse(UserConnection, logId, nameof(ImportBrands),response.Value.Count);
+                OPCarsBaseIntegrationLogger.CompleteResponse(_userConnection, logId, nameof(ImportBrands), response.Value.Count);
 
-                return response.Value.Count;
+                return importBrands;
             }
             catch (Exception ex)
             {
-                OPCarsBaseIntegrationLogger.LogError(UserConnection, logId, ex, true);
+                OPCarsBaseIntegrationLogger.LogError(_userConnection, logId, ex, true);
                 return OPErrors.General.Fatal(ex.Message);
             }
         }
 
         private void LoadExistingData()
         {
-            _existingData = new Dictionary<string, DateTime>();
+            _existingData = new Dictionary<string, ExistingBrand>();
 
-            var esq = new EntitySchemaQuery(UserConnection.EntitySchemaManager, "OPVehicleBrand");
+            var esq = new EntitySchemaQuery(_userConnection.EntitySchemaManager, "OPVehicleBrand");
             esq.PrimaryQueryColumn.IsAlwaysSelect = true;
 
             var extIdCol = esq.AddColumn("OPExternalId");
             var dateCol = esq.AddColumn("OPExternalUpdatedAt");
 
-            var entities = esq.GetEntityCollection(UserConnection);
+            var entities = esq.GetEntityCollection(_userConnection);
             foreach (var entity in entities)
             {
                 string extId = entity.GetTypedColumnValue<string>(extIdCol.Name);
 
                 if (!string.IsNullOrEmpty(extId) && !_existingData.ContainsKey(extId))
-                    _existingData.Add(extId, entity.GetTypedColumnValue<DateTime>(dateCol.Name));
+                {
+                    var id = entity.PrimaryColumnValue;
+                    var lastUpdated = entity.GetTypedColumnValue<DateTime>(dateCol.Name);
+
+                    _existingData.Add(extId, new ExistingBrand() { Id = id, LastUpdated = lastUpdated });
+                }
 
             }
         }
 
-        private void ProcessBrand(DBExecutor executor, VehicleBrandDto brandDto)
+        private Guid ProcessBrand(DBExecutor executor, VehicleBrandDto brandDto)
         {
-            if (brandDto == null || string.IsNullOrEmpty(brandDto.ExternalId)) return;
+            if (brandDto == null || string.IsNullOrEmpty(brandDto.ExternalId)) 
+                return Guid.Empty;
 
-            bool exists = _existingData.TryGetValue(brandDto.ExternalId, out DateTime lastUpdate);
+            bool exists = _existingData.TryGetValue(brandDto.ExternalId, out ExistingBrand brand);
 
             if (!exists)
             {
-                _existingData.Add(brandDto.ExternalId, brandDto.UpdatedAt);
-                InsertBrand(executor, brandDto);
+                brand = new ExistingBrand();
+                brand.Id = InsertBrand(executor, brandDto);
+                brand.LastUpdated = brand.LastUpdated;
+
+                _existingData.Add(brandDto.ExternalId, brand);
             }
-            else if (lastUpdate.Date != brandDto.UpdatedAt.Date)
+            else if (brand.LastUpdated.Date != brandDto.UpdatedAt.Date)
             {
                 UpdateBrand(executor, brandDto);
             }
 
+            return brand.Id;
         }
 
         private Guid InsertBrand(DBExecutor executor, VehicleBrandDto dto)
         {
             Guid id = Guid.NewGuid();
 
-            new Insert(UserConnection)
+            new Insert(_userConnection)
                  .Into("OPVehicleBrand")
                  .Set("Id", Column.Parameter(id))
                  .Set("OPExternalId", Column.Parameter(dto.ExternalId))
@@ -144,7 +151,7 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
 
         private void UpdateBrand(DBExecutor executor, VehicleBrandDto dto)
         {
-            var update = new Update(UserConnection, "OPVehicleBrand")
+            var update = new Update(_userConnection, "OPVehicleBrand")
                 .Set("OPName", Column.Parameter(dto.Name))
                 .Set("OPExternalUpdatedAt", Column.Parameter(dto.UpdatedAt))
                 .Where("OPExternalId").IsEqual(Column.Parameter(dto.ExternalId));
@@ -152,6 +159,18 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
             update.Execute(executor);
         }
 
+    }
+
+    public class ImportBrandDto
+    {
+        public Guid Id { get; set; }
+        public string ExternalId { get; set; }
+    }
+
+    public class ExistingBrand
+    {
+        public Guid Id { get; set; }
+        public DateTime LastUpdated { get; set; }
     }
 
 }

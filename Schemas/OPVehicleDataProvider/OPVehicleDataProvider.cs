@@ -64,9 +64,23 @@ namespace BPMSoft.Configuration.Providers
             return GetData<VehicleConfigurationDto>(endpoint);
         }
 
+        public OPResult<List<VehicleConfigurationDto>, OPError> GetConfigurationByMarkId(string markId)
+        {
+            var endpoint = $"{CONFIGURATION_ENDPOINT}?mark_id={markId}&";
+
+            return GetData<VehicleConfigurationDto>(endpoint);
+        }
+
         public OPResult<List<VehicleGenerationDto>, OPError> GetGenerationByModelId(string modelId)
         {
             var endpoint = $"{GENERATION_ENDPOINT}?model_id={modelId}&";
+
+            return GetData<VehicleGenerationDto>(endpoint);
+        }
+
+        public OPResult<List<VehicleGenerationDto>, OPError> GetGenerationByMarkId(string markId)
+        {
+            var endpoint = $"{GENERATION_ENDPOINT}?mark_id={markId}&";
 
             return GetData<VehicleGenerationDto>(endpoint);
         }
@@ -190,7 +204,7 @@ namespace BPMSoft.Configuration.Providers
         [JsonProperty("model_id")]
         public string ModelExternalId { get; set; }
 
-        [JsonProperty("body_type")]
+        [JsonProperty("name")]
         public string BodyType { get; set; }
 
         [JsonProperty("doors_count")]

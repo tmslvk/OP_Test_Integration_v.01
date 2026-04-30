@@ -53,7 +53,7 @@ define("OPVehicleBrand1Page", ["ServiceHelper"], function (ServiceHelper) {
 					externalBrandId: this.get("OPExternalId")
 				};
 
-				ServiceHelper.callService("OPVehicleModelService", "ImportModels",
+				ServiceHelper.callService("OPVehicleService", "ImportModels",
 					function (response) {
 						this.hideBodyMask();
 
