@@ -3,7 +3,7 @@
 	<Group Type="String">
 		<Items>
 			<Item Name="BaseElements.ScriptTask1.Caption" Value="Отправить запрос на CarsBase" />
-			<Item Name="BaseElements.ScriptTask2.Caption" Value="Зарегистрировать планировщик" />
+			<Item Name="BaseElements.StartTimerEvent1.Caption" Value="Timer" />
 			<Item Name="Caption" Value="Запуск планировщика" />
 			<Item Name="LaneSets.LaneSet1.Caption" Value="LaneSet 1" />
 			<Item Name="LaneSets.LaneSet1.Lanes.Lane1.Caption" Value="Lane 1" />
