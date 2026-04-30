@@ -9,14 +9,6 @@
       "B2": [],
       "B3": [
         {
-          "UId": "0d55770c-4ae0-4106-880f-f55369f1c040",
-          "A2": "BPMSoft.Configuration.OPVehicleBrandService",
-          "A3": "6c50c8ff-7ab8-4026-803a-c495d8291127",
-          "A4": "6c50c8ff-7ab8-4026-803a-c495d8291127",
-          "A5": "fcdd5cc1-30b8-49aa-9031-baef77cb580a",
-          "GF1": "null"
-        },
-        {
           "UId": "5cc96964-2ff5-47e3-9a37-89bb7ecd74ed",
           "A2": "BPMSoft.Configuration.OPCarsBaseIntegrationScheduler",
           "A3": "6c50c8ff-7ab8-4026-803a-c495d8291127",
@@ -27,6 +19,22 @@
         {
           "UId": "3e4d7cf0-1dd0-45e2-b5fd-5c77f62c54aa",
           "A2": "BPMSoft.Core.Scheduler",
+          "A3": "6c50c8ff-7ab8-4026-803a-c495d8291127",
+          "A4": "6c50c8ff-7ab8-4026-803a-c495d8291127",
+          "A5": "fcdd5cc1-30b8-49aa-9031-baef77cb580a",
+          "GF1": "null"
+        },
+        {
+          "UId": "daf9b71d-508a-4ecb-b800-42f7d54ea6b0",
+          "A2": "BPMSoft.Configuration.Services",
+          "A3": "6c50c8ff-7ab8-4026-803a-c495d8291127",
+          "A4": "6c50c8ff-7ab8-4026-803a-c495d8291127",
+          "A5": "fcdd5cc1-30b8-49aa-9031-baef77cb580a",
+          "GF1": "null"
+        },
+        {
+          "UId": "c3fd3870-ddcd-4905-9537-a2ace6f5f355",
+          "A2": "BPMSoft.Core.Tasks",
           "A3": "6c50c8ff-7ab8-4026-803a-c495d8291127",
           "A4": "6c50c8ff-7ab8-4026-803a-c495d8291127",
           "A5": "fcdd5cc1-30b8-49aa-9031-baef77cb580a",
@@ -117,7 +125,7 @@
           "BO3": true,
           "BP2": [],
           "CL2": "FFFFFFFF",
-          "CH1": "var userConnection = Get<UserConnection>(\"UserConnection\");\r\n\r\nvar service = new OPVehicleBrandService(userConnection);\r\nif(service == null)\r\n{\r\n\treturn false;\r\n}\r\n\r\nservice.ImportBrands();\r\nreturn true;",
+          "CH1": "Task.StartNewWithUserConnection<OPVehicleImportTask, string[]>(Array.Empty<string>());\r\nreturn true;",
           "CH2": true
         },
         {
