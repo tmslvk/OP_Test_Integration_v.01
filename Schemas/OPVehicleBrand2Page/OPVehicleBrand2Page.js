@@ -1,4 +1,4 @@
-define("OPVehicleBrand2Page", [], function() {
+define("OPVehicleBrand2Page", ["ServiceHelper"], function (ServiceHelper) {
 	return {
 		entitySchemaName: "OPVehicleBrand",
 		attributes: {},

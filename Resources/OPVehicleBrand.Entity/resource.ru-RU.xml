@@ -6,6 +6,7 @@
 			<Item Name="Columns.OPExternalId.Caption" Value="Внешний строковый идентификатор" />
 			<Item Name="Columns.OPExternalNumericId.Caption" Value="Внешний числовой идентификатор " />
 			<Item Name="Columns.OPExternalUpdatedAt.Caption" Value="Обновлен" />
+			<Item Name="Columns.OPIsModelsLoaded.Caption" Value="Загружены марки" />
 			<Item Name="Columns.OPName.Caption" Value="Название" />
 			<Item Name="Columns.OPNotes.Caption" Value="Заметки" />
 			<Item Name="EventsProcessSchema.Caption" Value="Бизнес-процесс" />
