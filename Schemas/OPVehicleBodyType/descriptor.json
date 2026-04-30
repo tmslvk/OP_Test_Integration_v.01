@@ -1,0 +1,13 @@
+﻿{
+  "Descriptor": {
+    "UId": "cab0586a-3fec-4612-b246-da83085aa0e4",
+    "Name": "OPVehicleBodyType",
+    "ModifiedOnUtc": "\/Date(1777362886000)\/",
+    "Parent": {
+      "UId": "11ab4bcb-9b23-4b6d-9c86-520fae925d75",
+      "Name": "BaseLookup"
+    },
+    "ManagerName": "EntitySchemaManager",
+    "Caption": "Тип кузова автомобиля"
+  }
+}

@@ -1,0 +1,113 @@
+= MetaData.Schema.UId "5021a28d-e441-452a-a05e-4e421113896c"
+= MetaData.Schema.A2 "OPVehicleModel"
+= MetaData.Schema.A5 "fcdd5cc1-30b8-49aa-9031-baef77cb580a"
+= MetaData.Schema.B6 "da629734-064b-2c63-678a-760202116317"
+= MetaData.Schema.B8 "1.8.0.14107"
+= MetaData.Schema.EG1.UId "9b4a2978-62fe-42b7-9fe0-59e442bd2b3e"
+= MetaData.Schema.EG1.A2 "UsrEntity_9777761EventsProcess"
+= MetaData.Schema.EG1.A5 "fcdd5cc1-30b8-49aa-9031-baef77cb580a"
++ MetaData.Schema.EG1.B8 "1.8.0.14107"
+= MetaData.Schema.EG1.BK8 "7bb7d6a5-e7a3-4837-83bc-7f785d688165"
+= MetaData.Schema.EG1.BK37.A3 "bb4d6607-026b-4b27-b640-8f5c77c1e89d"
+= MetaData.Schema.EG1.BK37.A4 "bb4d6607-026b-4b27-b640-8f5c77c1e89d"
+= MetaData.Schema.EG1.BK4.["08594d74-60b0-45ce-bf17-bac1a8b127f7"].CK2.["496d4a3c-b644-4a65-b0ed-2534d9236da5"].BL7 "53818048-7868-48f6-ada0-0ebaa65af628"
+= MetaData.Schema.EG1.BK4.["90027ac8-c9c3-4d21-a4f9-da1cde752cd1"].CK2.["d8b8410f-5c8a-4ddc-8fc2-353483452aed"].BL7 "53818048-7868-48f6-ada0-0ebaa65af628"
+= MetaData.Schema.EG1.BK4.["5f3bfbbe-1820-44ca-92f1-6f993169b2dd"].CK2.["d7c806b7-a29b-4ce5-9167-b3319472e772"].BL7 "53818048-7868-48f6-ada0-0ebaa65af628"
+= MetaData.Schema.EG1.BK4.["dbf48103-dcf6-4f53-a052-d727a95ea0b4"].CK2.["933bf2fc-d052-40c8-a3e0-bf60049da5d8"].BL7 "53818048-7868-48f6-ada0-0ebaa65af628"
+= MetaData.Schema.EG1.BK4.["f0646c74-f291-474f-9a10-143ee868f1c9"].CK2.["b3d5b61f-7afe-48b5-a8cc-40317ea9c428"].BL7 "53818048-7868-48f6-ada0-0ebaa65af628"
+= MetaData.Schema.EG1.BK4.["8140d7e7-fb91-4999-8347-543345440efb"].CK2.["c803a450-c8dc-47a4-b704-7125c23db317"].BL7 "53818048-7868-48f6-ada0-0ebaa65af628"
++ MetaData.Schema.EG1.Labels []
+= MetaData.Schema.D8 "1bab9dcf-17d5-49f8-9536-8e0064f1dce0"
++ MetaData.Schema.D29 "null"
++ MetaData.Schema.D30 "null"
++ MetaData.Schema.D31 "null"
++ MetaData.Schema.D2 {
+  "UId": "2dbf1a0b-3b02-e7a7-80de-226f6deb24c5",
+  "A2": "OPBrand",
+  "A3": "5021a28d-e441-452a-a05e-4e421113896c",
+  "A4": "5021a28d-e441-452a-a05e-4e421113896c",
+  "A5": "fcdd5cc1-30b8-49aa-9031-baef77cb580a",
+  "S2": "b295071f-7ea9-4e62-8d1a-919bf3732ff2",
+  "S4": "0d1b2933-9528-4639-a82b-a475d8cb3e9d",
+  "E6": true,
+  "E17": "OPBrandId"
+}
++ MetaData.Schema.D2 {
+  "UId": "ea15e4b0-890d-4eaa-5f62-6538939624c9",
+  "A2": "OPBodyType",
+  "A3": "5021a28d-e441-452a-a05e-4e421113896c",
+  "A4": "5021a28d-e441-452a-a05e-4e421113896c",
+  "A5": "fcdd5cc1-30b8-49aa-9031-baef77cb580a",
+  "S2": "b295071f-7ea9-4e62-8d1a-919bf3732ff2",
+  "S4": "cab0586a-3fec-4612-b246-da83085aa0e4",
+  "E6": true,
+  "E17": "OPBodyTypeId",
+  "E18": "OPBodyTypeName"
+}
++ MetaData.Schema.D2 {
+  "UId": "0f08a857-566e-6d38-9d0c-a68032f6e8db",
+  "A2": "OPGeneration",
+  "A3": "5021a28d-e441-452a-a05e-4e421113896c",
+  "A4": "5021a28d-e441-452a-a05e-4e421113896c",
+  "A5": "fcdd5cc1-30b8-49aa-9031-baef77cb580a",
+  "S2": "b295071f-7ea9-4e62-8d1a-919bf3732ff2",
+  "S4": "01e7a1c2-eca2-4e97-bef4-888497cc050b",
+  "E2": 1,
+  "E6": true,
+  "E17": "OPGenerationId",
+  "E18": "OPGenerationName"
+}
++ MetaData.Schema.D2 {
+  "UId": "ac93be74-1401-7010-4692-7f6dae099abe",
+  "A2": "OPName",
+  "A3": "5021a28d-e441-452a-a05e-4e421113896c",
+  "A4": "5021a28d-e441-452a-a05e-4e421113896c",
+  "A5": "fcdd5cc1-30b8-49aa-9031-baef77cb580a",
+  "S2": "ddb3a1ee-07e8-4d62-b7a9-d0e618b00fbd",
+  "E2": 1
+}
++ MetaData.Schema.D2 {
+  "UId": "6d71ba7e-7fe9-83a8-ac3d-a8d63f8b334a",
+  "A2": "OPExternalUpdatedAt",
+  "A3": "5021a28d-e441-452a-a05e-4e421113896c",
+  "A4": "5021a28d-e441-452a-a05e-4e421113896c",
+  "A5": "fcdd5cc1-30b8-49aa-9031-baef77cb580a",
+  "S2": "d21e9ef4-c064-4012-b286-fa1a8171da44"
+}
++ MetaData.Schema.D2 {
+  "UId": "a4537563-66e6-3629-b7f2-2a78fe9c3d29",
+  "A2": "OPExternalBrandId",
+  "A3": "5021a28d-e441-452a-a05e-4e421113896c",
+  "A4": "5021a28d-e441-452a-a05e-4e421113896c",
+  "A5": "fcdd5cc1-30b8-49aa-9031-baef77cb580a",
+  "S2": "ddb3a1ee-07e8-4d62-b7a9-d0e618b00fbd"
+}
++ MetaData.Schema.D2 {
+  "UId": "acd05374-7f41-7395-08a3-624a58ec82fe",
+  "A2": "OPExternalId",
+  "A3": "5021a28d-e441-452a-a05e-4e421113896c",
+  "A4": "5021a28d-e441-452a-a05e-4e421113896c",
+  "A5": "fcdd5cc1-30b8-49aa-9031-baef77cb580a",
+  "S2": "ddb3a1ee-07e8-4d62-b7a9-d0e618b00fbd"
+}
+~ MetaData.Schema.D2 ["ae0e45ca-c495-4fe7-a39d-3ab7278e1617","e80190a5-03b2-4095-90f7-a193a960adee","ebf6bb93-8aa6-4a01-900d-c6ea67affe21","9928edec-4272-425a-93bb-48743fee4b04","3015559e-cbc6-406a-88af-07f7930be832","3fabd836-6a53-4d8d-9069-6df88d9dae1e","2dbf1a0b-3b02-e7a7-80de-226f6deb24c5","ea15e4b0-890d-4eaa-5f62-6538939624c9","0f08a857-566e-6d38-9d0c-a68032f6e8db","ac93be74-1401-7010-4692-7f6dae099abe","6d71ba7e-7fe9-83a8-ac3d-a8d63f8b334a","a4537563-66e6-3629-b7f2-2a78fe9c3d29","acd05374-7f41-7395-08a3-624a58ec82fe"]
+= MetaData.Schema.D20.A2 "OPVehicleModelEvents"
+- MetaData.Schema.EG1.B6
+- MetaData.Schema.EG1.BK29
+- MetaData.Schema.EG1.BK30
+- MetaData.Schema.D1
+- MetaData.Schema.D20.A5
+- MetaData.Schema.D20.FA4
+- MetaData.Schema.D20.FA5
+- MetaData.Schema.D20.FA6
+- MetaData.Schema.D20.FA7
+- MetaData.Schema.D20.FA11
+- MetaData.Schema.D20.FA12
+- MetaData.Schema.D20.FA15
++ MetaData.Schema.B7 false
++ MetaData.Schema.D2.["ae0e45ca-c495-4fe7-a39d-3ab7278e1617"].E16 false
++ MetaData.Schema.D2.["e80190a5-03b2-4095-90f7-a193a960adee"].E16 false
++ MetaData.Schema.D2.["ebf6bb93-8aa6-4a01-900d-c6ea67affe21"].E16 false
++ MetaData.Schema.D2.["9928edec-4272-425a-93bb-48743fee4b04"].E16 false
++ MetaData.Schema.D2.["3015559e-cbc6-406a-88af-07f7930be832"].E16 false
++ MetaData.Schema.D2.["3fabd836-6a53-4d8d-9069-6df88d9dae1e"].E16 false
