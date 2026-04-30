@@ -4,61 +4,69 @@ using BPMSoft.Core;
 using BPMSoft.Core.DB;
 using BPMSoft.Core.Entities;
 using BPMSoft.Core.Factories;
-using BPMSoft.Web.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.ServiceModel;
-using System.ServiceModel.Activation;
-using System.ServiceModel.Web;
 
 namespace BPMSoft.Configuration
 {
 
-    [ServiceContract]
-    [AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Required)]
-    public class OPVehicleModelService : BaseService
+    public class OPVehicleModelService
     {
         private OPVehicleDataProvider _dataProvider;
         private Dictionary<string, DateTime> _existingData;
         private OPBodyTypeService _bodyTypeService;
         private OPGenerationService _generationService;
+        private UserConnection _userConnection;
 
-        [OperationContract]
-        [WebInvoke(Method = "POST",
-            RequestFormat = WebMessageFormat.Json,
-            BodyStyle = WebMessageBodyStyle.Wrapped,
-            ResponseFormat = WebMessageFormat.Json)]
+
+        public OPVehicleModelService(UserConnection userConnection)
+            => _userConnection = userConnection;
 
         public OPResult<int, OPError> ImportModels(Guid brandId, string externalBrandId)
         {
 
             try
             {
-                _dataProvider = ClassFactory.Get<OPVehicleDataProvider>(new ConstructorArgument("userConnection", UserConnection));
+                _dataProvider = ClassFactory.Get<OPVehicleDataProvider>(new ConstructorArgument("userConnection", _userConnection));
 
                 var response = _dataProvider.GetModelsByMarkId(externalBrandId);
+                var configsResponse = _dataProvider.GetConfigurationByMarkId(externalBrandId);
+                var generationsResponse = _dataProvider.GetGenerationByMarkId(externalBrandId);
 
                 if (response.IsFailure)
                     return response.Error;
 
+                var configMap = (configsResponse.Value ?? new List<VehicleConfigurationDto>())
+                    .ToLookup(c => c.ModelExternalId);
+
+                var generationMap = (generationsResponse.Value ?? new List<VehicleGenerationDto>())
+                    .ToLookup(g => g.ModelExternalId);
+
+
                 LoadExistingData(brandId);
 
-                using (DBExecutor dbExecutor = UserConnection.EnsureDBConnection())
+                using (DBExecutor dbExecutor = _userConnection.EnsureDBConnection())
                 {
                     dbExecutor.StartTransaction();
                     try
                     {
-                        _bodyTypeService = new OPBodyTypeService(UserConnection, _dataProvider);
-                        _generationService = new OPGenerationService(UserConnection, _dataProvider);
+                        _bodyTypeService = new OPBodyTypeService(_userConnection);
+                        _generationService = new OPGenerationService(_userConnection);
 
                         _bodyTypeService.Initialize();
                         _generationService.Initialize();
 
                         foreach (var model in response.Value)
                         {
-                            ProcessModel(dbExecutor, model, brandId);
+                            var configuration = configMap[model.ExternalId].FirstOrDefault();
+                            var generation = generationMap[model.ExternalId].FirstOrDefault();
+
+                            ProcessModel(dbExecutor, model, brandId, configuration, generation);
                         }
+
+                        UpdateBrandLoadedStatus(dbExecutor, brandId);
+
                         dbExecutor.CommitTransaction();
                     }
                     catch
@@ -76,56 +84,14 @@ namespace BPMSoft.Configuration
 
         }
 
-        private void LoadExistingData(Guid brandId)
-        {
-            _existingData = new Dictionary<string, DateTime>();
-
-            var esq = new EntitySchemaQuery(UserConnection.EntitySchemaManager, "OPVehicleModel");
-            esq.PrimaryQueryColumn.IsAlwaysSelect = true;
-
-            var extIdCol = esq.AddColumn("OPExternalId");
-            var dateCol = esq.AddColumn("OPExternalUpdatedAt");
-
-            esq.Filters.Add(esq.CreateFilterWithParameters(FilterComparisonType.Equal, "OPBrand", brandId));
-
-            var entities = esq.GetEntityCollection(UserConnection);
-            foreach (var entity in entities)
-            {
-                string extId = entity.GetTypedColumnValue<string>(extIdCol.Name);
-
-                if (!string.IsNullOrEmpty(extId) && !_existingData.ContainsKey(extId))
-                    _existingData.Add(extId, entity.GetTypedColumnValue<DateTime>(dateCol.Name));
-
-            }
-        }
-
-        private void ProcessModel(DBExecutor executor, VehicleModelDto modelDto, Guid brandId)
+        private void ProcessModel(DBExecutor executor, VehicleModelDto modelDto, Guid brandId, VehicleConfigurationDto configuration, VehicleGenerationDto generation)
         {
             if (modelDto == null || string.IsNullOrEmpty(modelDto.ExternalId)) return;
 
             bool exists = _existingData.TryGetValue(modelDto.ExternalId, out DateTime lastUpdate);
 
-            var configResponse = _bodyTypeService.GetConfigurationByModelId(modelDto.ExternalId);
-            var generationResponse = _generationService.GetGenerationByModelId(modelDto.ExternalId);
-
-            Guid bodyTypeId = Guid.Empty;
-            Guid generationId = Guid.Empty;
-
-            if (configResponse.IsSuccess && configResponse.Value != null)
-            {
-                var config = configResponse.Value.FirstOrDefault();
-                bodyTypeId = _bodyTypeService.EnsureValue(executor, config.BodyType, config.ExternalId);
-            }
-
-            if (generationResponse.IsSuccess && generationResponse.Value != null)
-            {
-                var config = generationResponse.Value.FirstOrDefault();
-
-                if (config.BodyType == null)
-                    config.BodyType = $"{config.YearFrom}-{config.YearTo}";
-
-                generationId = _generationService.EnsureValue(executor, config.BodyType, config.ExternalId);
-            }
+            Guid bodyTypeId = GetBodyTypeId(executor, configuration);
+            Guid generationId = GetGenerationId(executor, generation);
 
             if (!exists)
             {
@@ -138,10 +104,29 @@ namespace BPMSoft.Configuration
             }
 
         }
-     
+
+        private Guid GetBodyTypeId(DBExecutor executor, VehicleConfigurationDto configuration)
+        {
+            if(configuration == null)
+                return Guid.Empty;
+
+            return _bodyTypeService.EnsureValue(executor, configuration.BodyType, configuration.ExternalId);
+        }
+
+        private Guid GetGenerationId(DBExecutor executor, VehicleGenerationDto generation)
+        {
+            if(generation == null)
+                return Guid.Empty;
+
+            if (generation.BodyType == null)
+                generation.BodyType = $"{generation.YearFrom}-{generation.YearTo}";
+
+            return _generationService.EnsureValue(executor, generation.BodyType, generation.ExternalId);
+        }
+
         private void InsertModel(DBExecutor executor, VehicleModelDto dto, Guid brandId, Guid bodyTypeId, Guid generationId)
         {
-            var insert = new Insert(UserConnection)
+            var insert = new Insert(_userConnection)
                  .Into("OPVehicleModel")
                  .Set("Id", Column.Parameter(Guid.NewGuid()))
                  .Set("OPName", Column.Parameter(dto.Name))
@@ -160,7 +145,7 @@ namespace BPMSoft.Configuration
         
         private void UpdateModel(DBExecutor executor, VehicleModelDto dto, Guid bodyTypeId, Guid generationId)
         {
-            var update = new Update(UserConnection, "OPVehicleModel")
+            var update = new Update(_userConnection, "OPVehicleModel")
                .Set("OPName", Column.Parameter(dto.Name))
                .Set("OPExternalUpdatedAt", Column.Parameter(dto.UpdatedAt));          
 
@@ -173,6 +158,37 @@ namespace BPMSoft.Configuration
 
             update.Execute(executor);
 
+        }
+
+        private void UpdateBrandLoadedStatus(DBExecutor executor, Guid brandId)
+        {
+            new Update(_userConnection, "OPVehicleBrand")
+                .Set("OPIsModelsLoaded", Column.Parameter(true))
+                .Where("Id").IsEqual(Column.Parameter(brandId))
+                .Execute(executor);
+        }
+
+        private void LoadExistingData(Guid brandId)
+        {
+            _existingData = new Dictionary<string, DateTime>();
+
+            var esq = new EntitySchemaQuery(_userConnection.EntitySchemaManager, "OPVehicleModel");
+            esq.PrimaryQueryColumn.IsAlwaysSelect = true;
+
+            var extIdCol = esq.AddColumn("OPExternalId");
+            var dateCol = esq.AddColumn("OPExternalUpdatedAt");
+
+            esq.Filters.Add(esq.CreateFilterWithParameters(FilterComparisonType.Equal, "OPBrand", brandId));
+
+            var entities = esq.GetEntityCollection(_userConnection);
+            foreach (var entity in entities)
+            {
+                string extId = entity.GetTypedColumnValue<string>(extIdCol.Name);
+
+                if (!string.IsNullOrEmpty(extId) && !_existingData.ContainsKey(extId))
+                    _existingData.Add(extId, entity.GetTypedColumnValue<DateTime>(dateCol.Name));
+
+            }
         }
 
     }

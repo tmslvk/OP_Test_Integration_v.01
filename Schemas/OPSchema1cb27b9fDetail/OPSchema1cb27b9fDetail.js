@@ -29,7 +29,7 @@ define("OPSchema1cb27b9fDetail", ["ServiceHelper"], function(ServiceHelper) {
 				
 				this.showBodyMask();
 
-				ServiceHelper.callService("OPVehicleModelService", "ImportModels",
+				ServiceHelper.callService("OPVehicleService", "ImportModels",
                     function(response) {
 						this.hideBodyMask();
 						
