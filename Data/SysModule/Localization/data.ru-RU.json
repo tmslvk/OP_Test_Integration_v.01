@@ -1,0 +1,23 @@
+﻿{
+  "PackageData": [
+    {
+      "Row": [
+        {
+          "SchemaColumnUId": "ae0e45ca-c495-4fe7-a39d-3ab7278e1617",
+          "ColumnName": "Id",
+          "Value": "6f7d1c36-1a9b-40be-9e56-8346ef6bdc6d"
+        },
+        {
+          "SchemaColumnUId": "3da3c3b2-02fb-4cca-80c3-7946d4e8f565",
+          "ColumnName": "Caption",
+          "Value": "Лог интеграции с CarsBase"
+        },
+        {
+          "SchemaColumnUId": "7b904e78-84bf-408c-a7a1-1287e66837d3",
+          "ColumnName": "ModuleHeader",
+          "Value": ""
+        }
+      ]
+    }
+  ]
+}

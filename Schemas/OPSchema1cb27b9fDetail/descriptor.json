@@ -1,0 +1,13 @@
+﻿{
+  "Descriptor": {
+    "UId": "89e6390f-d351-43da-8927-bd41bd2daf87",
+    "Name": "OPSchema1cb27b9fDetail",
+    "ModifiedOnUtc": "\/Date(1777454526000)\/",
+    "Parent": {
+      "UId": "01eb38ee-668a-42f0-999d-c2534f979089",
+      "Name": "BaseGridDetailV2"
+    },
+    "ManagerName": "ClientUnitSchemaManager",
+    "Caption": "Схема детали: \"Модель автомобиля\""
+  }
+}

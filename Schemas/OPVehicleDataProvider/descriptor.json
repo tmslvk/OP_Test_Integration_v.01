@@ -1,0 +1,9 @@
+﻿{
+  "Descriptor": {
+    "UId": "b3231fe6-2472-4b53-ad6e-1238e4d479d5",
+    "Name": "OPVehicleDataProvider",
+    "ModifiedOnUtc": "\/Date(1777442575000)\/",
+    "ManagerName": "SourceCodeSchemaManager",
+    "Caption": "Провайдер с внешнего API"
+  }
+}

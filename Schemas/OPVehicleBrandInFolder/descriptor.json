@@ -1,0 +1,13 @@
+﻿{
+  "Descriptor": {
+    "UId": "abbbe4d3-19e0-443d-bf90-0100e7589ee6",
+    "Name": "OPVehicleBrandInFolder",
+    "ModifiedOnUtc": "\/Date(1777373475000)\/",
+    "Parent": {
+      "UId": "4f63bafb-e9e7-4082-b92e-66b97c14017c",
+      "Name": "BaseItemInFolder"
+    },
+    "ManagerName": "EntitySchemaManager",
+    "Caption": "Брэнд автомобиля в группе"
+  }
+}

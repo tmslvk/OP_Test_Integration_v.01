@@ -1,0 +1,13 @@
+﻿{
+  "Descriptor": {
+    "UId": "105bb5dc-e7a2-415d-bcb6-085e1aa3812d",
+    "Name": "OPCarsBaseIntegrationLog1Page",
+    "ModifiedOnUtc": "\/Date(1777449974000)\/",
+    "Parent": {
+      "UId": "d62293c0-7f14-44b1-b547-735fb40499cd",
+      "Name": "BaseModulePageV2"
+    },
+    "ManagerName": "ClientUnitSchemaManager",
+    "Caption": "Страница редактирования: \"Лог интеграции с CarsBase\""
+  }
+}

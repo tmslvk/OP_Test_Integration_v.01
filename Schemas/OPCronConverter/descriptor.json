@@ -1,0 +1,9 @@
+﻿{
+  "Descriptor": {
+    "UId": "b97d922a-030b-4734-90b2-0ff669bb9c5f",
+    "Name": "OPCronConverter",
+    "ModifiedOnUtc": "\/Date(1777463455000)\/",
+    "ManagerName": "SourceCodeSchemaManager",
+    "Caption": "Конвертер из строки в крон"
+  }
+}

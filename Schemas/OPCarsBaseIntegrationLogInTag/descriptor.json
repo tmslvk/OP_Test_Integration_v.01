@@ -1,0 +1,13 @@
+﻿{
+  "Descriptor": {
+    "UId": "0a887cdf-38af-421b-a452-67b4ccab83ef",
+    "Name": "OPCarsBaseIntegrationLogInTag",
+    "ModifiedOnUtc": "\/Date(1777449571000)\/",
+    "Parent": {
+      "UId": "5894a2b0-51d5-419a-82bb-238674634270",
+      "Name": "BaseEntityInTag"
+    },
+    "ManagerName": "EntitySchemaManager",
+    "Caption": "Тег в записи раздела Лог интеграции с CarsBase"
+  }
+}

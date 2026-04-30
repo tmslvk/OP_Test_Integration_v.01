@@ -1,232 +1,154 @@
+using BPMSoft.Configuration.OPCarsBaseIntegration.Logger;
+using BPMSoft.Configuration.Providers;
+using BPMSoft.Configuration.Validation;
+using BPMSoft.Configuration.WUserConnectionService;
 using BPMSoft.Core;
 using BPMSoft.Core.DB;
 using BPMSoft.Core.Entities;
-using Newtonsoft.Json;
+using BPMSoft.Core.Factories;
+using BPMSoft.Web.Common;
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
+using System.Runtime.Serialization;
+using System.ServiceModel;
+using System.ServiceModel.Activation;
+using System.ServiceModel.Web;
 
-namespace BPMSoft.Configuration.OpVehicleBrandService
+namespace BPMSoft.Configuration.OPVehicleBrandService
 {
 
-    public class OpVehicleBrandService
+    [ServiceContract]
+    [AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Required)]
+    public class OPVehicleBrandService : BaseService
     {
-        private readonly UserConnection _userConnection;
 
-        private readonly string _apiUrl;
-        private readonly string _apiToken;
+        private Dictionary<string, DateTime> _existingData;
 
-        private Dictionary<string, DateTime> _existingBrands;
+        [OperationContract]
+        [WebInvoke(Method = "POST",
+            RequestFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Wrapped,
+            ResponseFormat = WebMessageFormat.Json)]
 
-        public OpVehicleBrandService(UserConnection userConnection)
+        public OPResult<int, OPError> ImportBrands()
         {
-            _userConnection = userConnection;
+            Guid logId = Guid.Empty;
 
-            _apiUrl = BPMSoft.Core.Configuration.SysSettings.GetValue<string>(_userConnection, "VehicleApiUrl", string.Empty);
-            _apiToken = BPMSoft.Core.Configuration.SysSettings.GetValue<string>(_userConnection, "VehicleApiToken", string.Empty);
-        }
-
-        public async Task ImportAllBrandsAndModelsAsync()
-        {
-            var endpoint = $"full?token={_apiToken}";
-            var response = await GetFromApiAsync<VehicleBrandDto>(endpoint);
-
-            LoadExistingData();
-
-            foreach (var brand in response.Data)
+            try
             {
-                ProcessBrand(brand); 
+                var dataProvider = ClassFactory.Get<OPVehicleDataProvider>(
+                    new ConstructorArgument("userConnection", UserConnection));
+                var requestContext = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.RequestUri.LocalPath.ToString();
+                logId = OPCarsBaseIntegrationLogger.StartRequest(
+                    UserConnection,
+                    nameof(ImportBrands),
+                    $"{requestContext}"
+                );
+
+                var response = dataProvider.GetBrands();
+
+                if (response.IsFailure)
+                    return response.Error;
+
+                LoadExistingData();
+
+                using (DBExecutor dbExecutor = UserConnection.EnsureDBConnection())
+                {
+                    dbExecutor.StartTransaction();
+
+                    try
+                    {
+                        foreach (var brand in response.Value)
+                        {
+                            ProcessBrand(dbExecutor, brand);
+                        }
+
+                        dbExecutor.CommitTransaction();
+                    }
+                    catch (Exception dbEx)
+                    {
+                        OPCarsBaseIntegrationLogger.LogError(UserConnection, logId, dbEx, true);
+                        dbExecutor.RollbackTransaction();
+                        throw;
+                    }
+                }
+
+                OPCarsBaseIntegrationLogger.CompleteResponse(UserConnection, logId, nameof(ImportBrands),response.Value.Count);
+
+                return response.Value.Count;
+            }
+            catch (Exception ex)
+            {
+                OPCarsBaseIntegrationLogger.LogError(UserConnection, logId, ex, true);
+                return OPErrors.General.Fatal(ex.Message);
             }
         }
 
-        public async Task ImportConfigurationsAsync()
-        {
-            var endpoint = $"configurations?token={_apiToken}";
-            var response = await GetFromApiAsync<VehicleConfigurationDto>(endpoint);
-
-            foreach (var config in response.Data)
-            {
-               
-            }
-        }
-
-        public async Task ImportGenerationsAsync()
-        {
-            var endpoint = $"generations?token={_apiToken}";
-            var response = await GetFromApiAsync<VehicleGenerationDto>(endpoint);
-
-            foreach (var gen in response.Data)
-            {
-                
-            }
-        }
-
-        
         private void LoadExistingData()
         {
-            _existingBrands = new Dictionary<string, DateTime>();
+            _existingData = new Dictionary<string, DateTime>();
 
-            var esq = new EntitySchemaQuery(_userConnection.EntitySchemaManager, "OPVehicleBrand");
+            var esq = new EntitySchemaQuery(UserConnection.EntitySchemaManager, "OPVehicleBrand");
             esq.PrimaryQueryColumn.IsAlwaysSelect = true;
 
             var extIdCol = esq.AddColumn("OPExternalId");
             var dateCol = esq.AddColumn("OPExternalUpdatedAt");
 
-            var entities = esq.GetEntityCollection(_userConnection);
+            var entities = esq.GetEntityCollection(UserConnection);
             foreach (var entity in entities)
             {
                 string extId = entity.GetTypedColumnValue<string>(extIdCol.Name);
 
-                if (!string.IsNullOrEmpty(extId) && !_existingBrands.ContainsKey(extId))
-                    _existingBrands.Add(extId, entity.GetTypedColumnValue<DateTime>(dateCol.Name));
+                if (!string.IsNullOrEmpty(extId) && !_existingData.ContainsKey(extId))
+                    _existingData.Add(extId, entity.GetTypedColumnValue<DateTime>(dateCol.Name));
 
             }
         }
 
-        private void ProcessBrand(VehicleBrandDto brandDto)
+        private void ProcessBrand(DBExecutor executor, VehicleBrandDto brandDto)
         {
-            if (brandDto == null || string.IsNullOrEmpty(brandDto.ExternalId))
-                return;
-         
-            bool exists = _existingBrands.TryGetValue(brandDto.ExternalId, out DateTime lastUpdate);
+            if (brandDto == null || string.IsNullOrEmpty(brandDto.ExternalId)) return;
+
+            bool exists = _existingData.TryGetValue(brandDto.ExternalId, out DateTime lastUpdate);
 
             if (!exists)
-                InsertBrand(brandDto);
-            else if (lastUpdate != brandDto.UpdatedAt)
-                UpdateBrand(brandDto);
+            {
+                _existingData.Add(brandDto.ExternalId, brandDto.UpdatedAt);
+                InsertBrand(executor, brandDto);
+            }
+            else if (lastUpdate.Date != brandDto.UpdatedAt.Date)
+            {
+                UpdateBrand(executor, brandDto);
+            }
 
         }
 
-        private void InsertBrand(VehicleBrandDto dto)
+        private Guid InsertBrand(DBExecutor executor, VehicleBrandDto dto)
         {
-            var insert = new Insert(_userConnection)
-                .Into("OPVehicleBrand")
-                .Set("OPExternalId", Column.Parameter(dto.ExternalId))
+            Guid id = Guid.NewGuid();
+
+            new Insert(UserConnection)
+                 .Into("OPVehicleBrand")
+                 .Set("Id", Column.Parameter(id))
+                 .Set("OPExternalId", Column.Parameter(dto.ExternalId))
+                 .Set("OPExternalNumericId", Column.Parameter(dto.ExternalNumericId))
+                 .Set("OPName", Column.Parameter(dto.Name))
+                 .Set("OPExternalUpdatedAt", Column.Parameter(dto.UpdatedAt))
+                 .Execute(executor);
+
+            return id;
+        }
+
+        private void UpdateBrand(DBExecutor executor, VehicleBrandDto dto)
+        {
+            var update = new Update(UserConnection, "OPVehicleBrand")
                 .Set("OPName", Column.Parameter(dto.Name))
-                .Set("OPCountry", Column.Parameter(dto.Country))
-                .Set("OPExternalUpdatedAt", Column.Parameter(dto.UpdatedAt));
-            insert.Execute();
+                .Set("OPExternalUpdatedAt", Column.Parameter(dto.UpdatedAt))
+                .Where("OPExternalId").IsEqual(Column.Parameter(dto.ExternalId));
+
+            update.Execute(executor);
         }
 
-        private void UpdateBrand(VehicleBrandDto dto)
-        {
-            var update = new Update(_userConnection, "OpVehicleBrand")
-                .Set("OpName", Column.Parameter(dto.Name))
-                .Set("OpCountry", Column.Parameter(dto.Country))
-                .Set("OpExternalUpdatedAt", Column.Parameter(dto.UpdatedAt))
-                .Where("OpExternalId").IsEqual(Column.Parameter(dto.ExternalId));
-            update.Execute();
-        }
-
-        private async Task<CarsBaseResponse<T>> GetFromApiAsync<T>(string endpoint)
-        {
-            if (string.IsNullOrEmpty(_apiUrl) || string.IsNullOrEmpty(_apiToken))
-            {
-                throw new Exception("Ошибка интеграции: Не заполнены системные настройки [cite: 19, 60]");
-            }
-
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri(_apiUrl);
-                try
-                {
-                    var responseMessage = await client.GetAsync(endpoint);
-                    responseMessage.EnsureSuccessStatusCode();
-
-                    var content = await responseMessage.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<CarsBaseResponse<T>>(content);
-                }
-                catch (Exception ex)
-                {
-                    throw;
-                }
-            }
-        }
     }
 
-    public class CarsBaseResponse<T>
-    {
-        [JsonProperty("data")]
-        public List<T> Data { get; set; }
-    }
-
-    public class VehicleBrandDto
-    {
-        [JsonProperty("id")]
-        public string ExternalId { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("country")]
-        public string Country { get; set; }
-
-        [JsonProperty("updated_at")]
-        public DateTime UpdatedAt { get; set; }
-
-        [JsonProperty("models")]
-        public List<VehicleModelDto> Models { get; set; }
-    }
-
-    public class VehicleModelDto
-    {
-        [JsonProperty("id")]
-        public string ExternalId { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("year_from")]
-        public int YearFrom { get; set; } 
-
-        [JsonProperty("year_to")]
-        public int? YearTo { get; set; }
-
-        [JsonProperty("class")]
-        public string VehicleClass { get; set; } 
-
-        [JsonProperty("updated_at")]
-        public DateTime UpdatedAt { get; set; }
-    }
-
-    public class VehicleConfigurationDto
-    {
-        [JsonProperty("id")]
-        public string ExternalId { get; set; }
-
-        [JsonProperty("model_id")]
-        public string ModelExternalId { get; set; }
-
-        [JsonProperty("body_type")]
-        public string BodyType { get; set; }  
-
-        [JsonProperty("doors_count")]
-        public int DoorsCount { get; set; } 
-
-        [JsonProperty("updated_at")]
-        public DateTime UpdatedAt { get; set; }
-    }
-
-    public class VehicleGenerationDto
-    {
-        [JsonProperty("id")]
-        public string ExternalId { get; set; }
-
-        [JsonProperty("model_id")]
-        public string ModelExternalId { get; set; }
-
-        [JsonProperty("name")]
-        public string BodyType { get; set; }
-
-        [JsonProperty("year_from")]
-        public DateTime YearFrom { get; set; }
-
-        [JsonProperty("year_to")]
-        public DateTime YearTo { get; set; }
-
-        [JsonProperty("updated_at")]
-        public DateTime UpdatedAt { get; set; }
-
-    }
 }

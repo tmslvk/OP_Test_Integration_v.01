@@ -1,0 +1,13 @@
+﻿{
+  "Descriptor": {
+    "UId": "f9acd50d-12ad-488b-8ce4-0d528b4fa557",
+    "Name": "OPVehicleBrand1MiniPage",
+    "ModifiedOnUtc": "\/Date(1777375192000)\/",
+    "Parent": {
+      "UId": "8e06a577-08e4-424e-bd89-798a34e1b928",
+      "Name": "BaseMiniPage"
+    },
+    "ManagerName": "ClientUnitSchemaManager",
+    "Caption": "OPVehicleBrand1MiniPage"
+  }
+}

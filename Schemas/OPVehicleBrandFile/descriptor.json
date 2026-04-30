@@ -1,0 +1,13 @@
+﻿{
+  "Descriptor": {
+    "UId": "efa17a74-e215-4591-8102-ced8216e8905",
+    "Name": "OPVehicleBrandFile",
+    "ModifiedOnUtc": "\/Date(1777373458000)\/",
+    "Parent": {
+      "UId": "556c5867-60a7-4456-aae1-a57a122bef70",
+      "Name": "File"
+    },
+    "ManagerName": "EntitySchemaManager",
+    "Caption": "Файл и ссылка объекта Брэнд автомобиля"
+  }
+}

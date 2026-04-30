@@ -1,0 +1,13 @@
+﻿{
+  "Descriptor": {
+    "UId": "a78f3906-bf1a-46cc-803e-0f6feb0e5a30",
+    "Name": "OPVehicleBrand2Page",
+    "ModifiedOnUtc": "\/Date(1777375199000)\/",
+    "Parent": {
+      "UId": "d62293c0-7f14-44b1-b547-735fb40499cd",
+      "Name": "BaseModulePageV2"
+    },
+    "ManagerName": "ClientUnitSchemaManager",
+    "Caption": "Страница редактирования: \"Марки автомобилей\""
+  }
+}
