@@ -1,19 +1,16 @@
+using BPMSoft.Configuration.Helpers;
 using BPMSoft.Configuration.OPCarsBaseIntegration.Logger;
-using BPMSoft.Configuration.Services;
 using BPMSoft.Configuration.Validation;
 using BPMSoft.Core;
-using BPMSoft.Core.Process;
-using BPMSoft.Core.Scheduler;
+using BPMSoft.Core.Factories;
 using BPMSoft.Core.Tasks;
 using BPMSoft.Web.Common;
-using DocumentFormat.OpenXml.Spreadsheet;
 using System;
-using System.Collections.Generic;
 using System.ServiceModel;
 using System.ServiceModel.Activation;
 using System.ServiceModel.Web;
 
-namespace BPMSoft.Configuration.OPVehicleBrandService
+namespace BPMSoft.Configuration.Services
 {
 
     [ServiceContract]
@@ -40,9 +37,10 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
                     $"{requestContext}"
                 );
 
-                Services.OPVehicleBrandService service = new Services.OPVehicleBrandService(base.UserConnection);
+                var helper = ClassFactory.Get<OPVehicleBrandHelper>(
+                            new ConstructorArgument("userConnection", UserConnection));
 
-                var response = service.ImportBrands();
+                var response = helper.ImportBrands();
 
                 if (response.IsFailure)
                     return response.Error;
@@ -79,9 +77,10 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
                     $"{requestContext}"
                 );
 
-                OPVehicleModelService service = new OPVehicleModelService(base.UserConnection);
+                var helper = ClassFactory.Get<OPVehicleModelHelper>(
+                            new ConstructorArgument("userConnection", UserConnection));
 
-                var response = service.ImportModels(brandId, externalBrandId);
+                var response = helper.ImportModels(brandId, externalBrandId);
 
                 if (response.IsFailure)
                     return response.Error;
