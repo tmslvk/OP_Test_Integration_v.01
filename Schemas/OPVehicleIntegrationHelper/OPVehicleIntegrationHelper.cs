@@ -2,6 +2,7 @@ using BPMSoft.Configuration.Validation;
 using BPMSoft.Core;
 using BPMSoft.Core.Factories;
 
+
 namespace BPMSoft.Configuration.Helpers
 {
 
@@ -17,10 +18,12 @@ namespace BPMSoft.Configuration.Helpers
 
             ModelService = ClassFactory.Get<OPVehicleModelHelper>(
                 new ConstructorArgument("userConnection", userConnection));
+
         }
 
         public OPResult<bool, OPError> ImportAll()
         {
+
              var response = BrandService.ImportBrands();
 
             if (response.IsFailure)
