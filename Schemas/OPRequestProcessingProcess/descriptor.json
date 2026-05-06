@@ -1,0 +1,9 @@
+﻿{
+  "Descriptor": {
+    "UId": "eb1e8524-36b9-4bd2-a625-7df204f9ee1d",
+    "Name": "OPRequestProcessingProcess",
+    "ModifiedOnUtc": "\/Date(1778048218000)\/",
+    "ManagerName": "ProcessSchemaManager",
+    "Caption": "Запуск планировщика"
+  }
+}

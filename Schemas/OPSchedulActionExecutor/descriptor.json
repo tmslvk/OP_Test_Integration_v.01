@@ -1,0 +1,9 @@
+﻿{
+  "Descriptor": {
+    "UId": "df70878a-dfee-46f8-a029-3229f00a7ad5",
+    "Name": "OPSchedulActionExecutor",
+    "ModifiedOnUtc": "\/Date(1777557712000)\/",
+    "ManagerName": "SourceCodeSchemaManager",
+    "Caption": "Действия по расписанию"
+  }
+}

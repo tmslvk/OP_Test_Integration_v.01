@@ -1,0 +1,9 @@
+﻿{
+  "Descriptor": {
+    "UId": "fd32b7e1-2613-4311-8e39-34d84839c337",
+    "Name": "OPVehicleWorkerProcess",
+    "ModifiedOnUtc": "\/Date(1778048442000)\/",
+    "ManagerName": "ProcessSchemaManager",
+    "Caption": "Запуск действий по расписанию"
+  }
+}
