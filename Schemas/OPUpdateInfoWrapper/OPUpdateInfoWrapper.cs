@@ -1,7 +1,8 @@
 namespace BPMSoft.Configuration.OPCarsBaseIntegrationJobs
 {
+    using BPMSoft.Configuration.Helpers;
     using BPMSoft.Configuration.OPCarsBaseIntegration.Logger;
-    using BPMSoft.Configuration.OPVehicleBrandService;
+    using BPMSoft.Configuration.Services;
     using BPMSoft.Configuration.WUserConnectionService;
     using BPMSoft.Core;
     using BPMSoft.Core.Factories;
@@ -20,11 +21,11 @@ namespace BPMSoft.Configuration.OPCarsBaseIntegrationJobs
 
             try
             {
-                var service = ClassFactory.Get<OPVehicleService>(
+                var service = ClassFactory.Get<OPVehicleIntegrationHelper>(
                     new ConstructorArgument("userConnection", userConnection));
 
                 OPCarsBaseIntegrationLogger.StartRequest(userConnection, nameof(Execute), $"OPCarsBaseIntegrationGetStockJob/{nameof(Execute)}");
-                service.ImportBrands();
+                service.ImportAll();
             }
             catch (Exception ex)
             {

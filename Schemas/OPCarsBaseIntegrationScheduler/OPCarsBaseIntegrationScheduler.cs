@@ -41,7 +41,6 @@ namespace BPMSoft.Configuration.OPCarsBaseIntegrationScheduler
             ITrigger trigger = TriggerBuilder.Create()
                 .WithIdentity($"{jobName}Trigger", jobGroup)
                 .StartAt(startTime)
-                .WithCronSchedule(OPCronConverter.GetCron(_userConnection))
                 .Build();
 
             AppScheduler.Instance.ScheduleJob(job, trigger);

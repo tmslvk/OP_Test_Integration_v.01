@@ -8,6 +8,8 @@ using System.Linq;
 using System.Net;
 
 using System.Text;
+using BPMSoft.Configuration.Models;
+using Nest;
 
 namespace BPMSoft.Configuration.Providers
 {
@@ -92,7 +94,6 @@ namespace BPMSoft.Configuration.Providers
             {
                 var response = GetFromApi<TData>(endpoint);
 
-
                 if (response.IsFailure)
                     return response.Error;
 
@@ -105,7 +106,7 @@ namespace BPMSoft.Configuration.Providers
         }
 
 
-        private OPResult<CarsBaseResponse<T>, OPError> GetFromApi<T>(string endpoint)
+        private OPResult<VehicleBaseResponse<T>, OPError> GetFromApi<T>(string endpoint)
         {
             if (string.IsNullOrEmpty(_apiUrl))
                 return OPErrors.API.InvalidApiToken();
@@ -121,7 +122,7 @@ namespace BPMSoft.Configuration.Providers
                
                 logId = OPCarsBaseIntegrationLogger.StartRequest(
                     _userConnection,
-                    nameof(GetBrands),
+                    nameof(GetFromApi),
                     url
                 );
 
@@ -133,9 +134,9 @@ namespace BPMSoft.Configuration.Providers
 
                     string jsonResponse = webClient.DownloadString(url);
 
-                    var apiResponse = JsonConvert.DeserializeObject<CarsBaseResponse<T>>(jsonResponse);
+                    var apiResponse = JsonConvert.DeserializeObject<VehicleBaseResponse<T>>(jsonResponse);
 
-                    OPCarsBaseIntegrationLogger.CompleteResponse(_userConnection, logId, nameof(GetFromApi), apiResponse);
+                    OPCarsBaseIntegrationLogger.CompleteResponse(_userConnection, logId, nameof(GetFromApi), new { DataCount = apiResponse.Data.Count} );
 
                     return apiResponse;
                 }
@@ -148,91 +149,5 @@ namespace BPMSoft.Configuration.Providers
         }
     }
 
-    public class CarsBaseResponse<T>
-    {
-        [JsonProperty("data")]
-        public List<T> Data { get; set; }
-    }
-
-    public class VehicleBrandDto
-    {
-        [JsonProperty("id")]
-        public string ExternalId { get; set; }
-
-        [JsonProperty("numeric_id")]
-        public string ExternalNumericId { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("country")]
-        public string Country { get; set; }
-
-        [JsonProperty("updated_at")]
-        public DateTime UpdatedAt { get; set; }
-
-        [JsonProperty("models")]
-        public List<VehicleModelDto> Models { get; set; }
-    }
-
-    public class VehicleModelDto
-    {
-        [JsonProperty("id")]
-        public string ExternalId { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("year_from")]
-        public int YearFrom { get; set; }
-
-        [JsonProperty("year_to")]
-        public int? YearTo { get; set; }
-
-        [JsonProperty("class")]
-        public string VehicleClass { get; set; }
-
-        [JsonProperty("updated_at")]
-        public DateTime UpdatedAt { get; set; }
-    }
-
-    public class VehicleConfigurationDto
-    {
-        [JsonProperty("id")]
-        public string ExternalId { get; set; }
-
-        [JsonProperty("model_id")]
-        public string ModelExternalId { get; set; }
-
-        [JsonProperty("name")]
-        public string BodyType { get; set; }
-
-        [JsonProperty("doors_count")]
-        public int DoorsCount { get; set; }
-
-        [JsonProperty("updated_at")]
-        public DateTime UpdatedAt { get; set; }
-    }
-
-    public class VehicleGenerationDto
-    {
-        [JsonProperty("id")]
-        public string ExternalId { get; set; }
-
-        [JsonProperty("model_id")]
-        public string ModelExternalId { get; set; }
-
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string BodyType { get; set; }
-
-        [JsonProperty("year_from")]
-        public int YearFrom { get; set; }
-
-        [JsonProperty("year_to")]
-        public int YearTo { get; set; }
-
-        [JsonProperty("updated_at")]
-        public DateTime UpdatedAt { get; set; }
-
-    }
+    
 }
