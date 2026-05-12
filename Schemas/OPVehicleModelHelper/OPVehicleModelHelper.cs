@@ -43,7 +43,6 @@ namespace BPMSoft.Configuration
                 var generationMap = (generationsResponse.Value ?? new List<VehicleGenerationDto>())
                     .ToLookup(g => g.ModelExternalId);
 
-
                 LoadExistingData(brandId);
 
                 using (DBExecutor dbExecutor = UserConnection.EnsureDBConnection())
@@ -112,7 +111,7 @@ namespace BPMSoft.Configuration
             if(configuration == null)
                 return Guid.Empty;
 
-            return BodyTypeHelper.EnsureValue(executor, configuration.BodyType, configuration.ExternalId);
+            return BodyTypeHelper.EnsureValue(executor, configuration.Name, configuration.ExternalId);
         }
 
         protected virtual Guid GetGenerationId(DBExecutor executor, VehicleGenerationDto generation)
@@ -120,10 +119,10 @@ namespace BPMSoft.Configuration
             if(generation == null)
                 return Guid.Empty;
 
-            if (generation.BodyType == null)
-                generation.BodyType = $"{generation.YearFrom}-{generation.YearTo}";
+            if (generation.Name == null)
+                generation.Name = $"{generation.YearFrom}-{generation.YearTo}";
 
-            return GenerationHelper.EnsureValue(executor, generation.BodyType, generation.ExternalId);
+            return GenerationHelper.EnsureValue(executor, generation.Name, generation.ExternalId);
         }
 
         protected virtual void InsertModel(DBExecutor executor, VehicleModelDto dto, Guid brandId, Guid bodyTypeId, Guid generationId)

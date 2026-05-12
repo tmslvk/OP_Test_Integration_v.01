@@ -104,15 +104,14 @@ namespace BPMSoft.Configuration.Services
             ResponseFormat = WebMessageFormat.Json)]
         public OPResult<string, OPError> StartFullImportTask()
         {
-            var param = Array.Empty<string>();
+         
+            var globalLock = ClassFactory.Get<OPVehicleImportGlobalLock>(
+                new ConstructorArgument("userConnection", UserConnection));
 
-            string lockKey = "OPVehicleImport_GlobalLock";
-
-            var activeLock = UserConnection.ApplicationCache[lockKey];
-
-            if (activeLock != null)
+            if (globalLock.IsLocked())
                 return "Импорт уже запущен другим пользователем или системой. Дождитесь завершения.";
 
+            var param = Array.Empty<string>();
             Task.StartNewWithUserConnection<OPVehicleImportTask, string[]>(param);
 
             return "Задача запущена";

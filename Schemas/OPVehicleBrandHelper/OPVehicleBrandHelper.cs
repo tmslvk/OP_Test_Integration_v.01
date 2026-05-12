@@ -6,8 +6,10 @@ using BPMSoft.Core;
 using BPMSoft.Core.DB;
 using BPMSoft.Core.Entities;
 using BPMSoft.Core.Factories;
+using Google.GData.Contacts;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BPMSoft.Configuration.Helpers
 {
@@ -37,7 +39,9 @@ namespace BPMSoft.Configuration.Helpers
                 if (response.IsFailure)
                     return response.Error;
 
-                LoadExistingData();
+                LoadExistingData(response.Value
+                    .Select(b => b.ExternalId)
+                    .ToArray());
 
                 var importBrands = new List<ImportBrandDto>();
 
@@ -71,25 +75,33 @@ namespace BPMSoft.Configuration.Helpers
             }
         }
 
-        protected virtual void LoadExistingData()
+        protected virtual void LoadExistingData(string[] externalIds)
         {
             ExistingData = new Dictionary<string, ExistingBrand>();
 
             var esq = new EntitySchemaQuery(UserConnection.EntitySchemaManager, "OPVehicleBrand");
             esq.PrimaryQueryColumn.IsAlwaysSelect = true;
 
-            var extIdCol = esq.AddColumn("OPExternalId");
-            var dateCol = esq.AddColumn("OPExternalUpdatedAt");
+            var externalIdColumn = esq.AddColumn("OPExternalId");
+            var updatedAtColumn = esq.AddColumn("OPExternalUpdatedAt");
 
-            var entities = esq.GetEntityCollection(UserConnection);
+            var filter = esq.CreateFilterWithParameters(
+                FilterComparisonType.Equal,
+                "OPExternalId",
+                externalIds.Cast<object>());
+
+            esq.Filters.Add(filter);
+
+            EntityCollection entities = esq.GetEntityCollection(UserConnection);
+
             foreach (var entity in entities)
             {
-                string extId = entity.GetTypedColumnValue<string>(extIdCol.Name);
+                string extId = entity.GetTypedColumnValue<string>(externalIdColumn.Name);
 
                 if (!string.IsNullOrEmpty(extId) && !ExistingData.ContainsKey(extId))
                 {
                     var id = entity.PrimaryColumnValue;
-                    var lastUpdated = entity.GetTypedColumnValue<DateTime>(dateCol.Name);
+                    var lastUpdated = entity.GetTypedColumnValue<DateTime>(updatedAtColumn.Name);
 
                     ExistingData.Add(extId, new ExistingBrand() { Id = id, LastUpdated = lastUpdated });
                 }
@@ -108,9 +120,9 @@ namespace BPMSoft.Configuration.Helpers
             {
                 brand = new ExistingBrand
                 {
-                    Id = InsertBrand(executor, brandDto)
+                    Id = InsertBrand(executor, brandDto),
+                    LastUpdated = brandDto.UpdatedAt
                 };
-                brand.LastUpdated = brand.LastUpdated;
 
                 ExistingData.Add(brandDto.ExternalId, brand);
             }

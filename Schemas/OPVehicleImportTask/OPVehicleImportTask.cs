@@ -1,17 +1,13 @@
 using BPMSoft.Configuration;
 using BPMSoft.Configuration.Helpers;
-using BPMSoft.Configuration.Services;
-using BPMSoft.Configuration.WUserConnectionService;
 using BPMSoft.Core;
 using BPMSoft.Core.Factories;
 using BPMSoft.Core.Tasks;
-using Newtonsoft.Json;
 using System;
 
 public class OPVehicleImportTask : IBackgroundTask<string[]>, IUserConnectionRequired
 {
     protected UserConnection UserConnection;
-    private const string LockKey = "OPVehicleImport_GlobalLock";
 
     public void SetUserConnection(UserConnection userConnection)
     {
@@ -19,8 +15,14 @@ public class OPVehicleImportTask : IBackgroundTask<string[]>, IUserConnectionReq
     }
 
     public void Run(string[] param)
-    {
-        UserConnection.ApplicationCache[LockKey] = DateTime.Now;
+    {   
+        var globalLock = ClassFactory.Get<OPVehicleImportGlobalLock>(
+                new ConstructorArgument("userConnection", UserConnection));
+
+        if (globalLock.IsLocked())
+            return;
+
+        globalLock.SetLocked();
 
         try
         {
@@ -35,7 +37,7 @@ public class OPVehicleImportTask : IBackgroundTask<string[]>, IUserConnectionReq
         }
         finally
         {
-            UserConnection.ApplicationCache.Remove(LockKey);
+            globalLock.SetUnlocked();
             NotifyUser(UserConnection);
         }   
     }
