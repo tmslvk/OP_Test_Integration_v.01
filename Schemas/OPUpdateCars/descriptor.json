@@ -1,9 +1,0 @@
-﻿{
-  "Descriptor": {
-    "UId": "6c50c8ff-7ab8-4026-803a-c495d8291127",
-    "Name": "OPUpdateCars",
-    "ModifiedOnUtc": "\/Date(1777554319000)\/",
-    "ManagerName": "ProcessSchemaManager",
-    "Caption": "Запуск планировщика"
-  }
-}

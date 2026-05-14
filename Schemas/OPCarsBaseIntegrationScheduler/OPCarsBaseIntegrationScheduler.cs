@@ -2,7 +2,6 @@ namespace BPMSoft.Configuration.OPCarsBaseIntegrationScheduler
 {
     using BPMSoft.Configuration.OPCarsBaseIntegrationJobs;
     using BPMSoft.Configuration.OPConstants;
-    using BPMSoft.Configuration.OPCronConverter;
     using BPMSoft.Core;
     using BPMSoft.Core.Scheduler;
     using DocumentFormat.OpenXml.Drawing;
