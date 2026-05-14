@@ -1,4 +1,5 @@
 using BPMSoft.Configuration.Helpers;
+using BPMSoft.Configuration.Logger;
 using BPMSoft.Configuration.OPCarsBaseIntegration.Logger;
 using BPMSoft.Configuration.Validation;
 using BPMSoft.Core;
@@ -9,6 +10,7 @@ using System;
 using System.ServiceModel;
 using System.ServiceModel.Activation;
 using System.ServiceModel.Web;
+using CommonLogger = BPMSoft.Configuration.OPCommonLogger.OPCommonLogger;
 
 namespace BPMSoft.Configuration.Services
 {
@@ -104,12 +106,13 @@ namespace BPMSoft.Configuration.Services
             ResponseFormat = WebMessageFormat.Json)]
         public OPResult<string, OPError> StartFullImportTask()
         {
-         
             var globalLock = ClassFactory.Get<OPVehicleImportGlobalLock>(
                 new ConstructorArgument("userConnection", UserConnection));
 
-            if (globalLock.IsLocked())
+            if (globalLock.IsLocked()) 
                 return "Импорт уже запущен другим пользователем или системой. Дождитесь завершения.";
+
+            CommonLogger.WriteInformationLog(UserConnection, nameof(StartFullImportTask), "Запущен полный импорт данных (вручную)");
 
             var param = Array.Empty<string>();
             Task.StartNewWithUserConnection<OPVehicleImportTask, string[]>(param);
