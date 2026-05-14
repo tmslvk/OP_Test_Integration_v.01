@@ -1,10 +1,13 @@
 namespace BPMSoft.Configuration.OPCarsBaseIntegrationScheduler 
 {
     using BPMSoft.Configuration.OPCarsBaseIntegrationJobs;
+    using BPMSoft.Configuration.OPConstants;
     using BPMSoft.Configuration.OPCronConverter;
     using BPMSoft.Core;
     using BPMSoft.Core.Scheduler;
+    using DocumentFormat.OpenXml.Drawing;
     using Quartz;
+    using Quartz.Impl.Triggers;
     using System;
 
     public class OPCarsBaseIntegrationScheduler
@@ -18,30 +21,27 @@ namespace BPMSoft.Configuration.OPCarsBaseIntegrationScheduler
 
         public void StartGetStockJob()
         {
-            var cron = (string)BPMSoft.Core.Configuration.SysSettings
-                .GetValue(_userConnection, "OPCarsBaseIntegrationCron");
-
             var jobName = "OPCarsBaseIntegrationGetStockJob";
             var jobGroup = "Main";
 
-            var delay = (int)BPMSoft.Core.Configuration.SysSettings
-                .GetValue(_userConnection, "MinutesStockRequest");
+            var intervalRaw = (string)BPMSoft.Core.Configuration.SysSettings.GetValue(
+                _userConnection,
+                "OPCarsBaseIntegrationInterval"
+            );
 
-            var startTime = DateTime.UtcNow.AddMinutes(delay);
-
+            var interval = OPSchedulerIntervals.Parse(intervalRaw);
+            var startTime = DateTime.UtcNow.Add(interval);
             if (AppScheduler.DoesJobExist(jobName, jobGroup))
-            {
                 AppScheduler.RemoveJob(jobName, jobGroup);
-            }
 
-            IJobDetail job = JobBuilder.Create<OPCarsBaseIntegrationGetStockJob>()
-                .WithIdentity(jobName, jobGroup)
-                .Build();
+            IJobDetail job = AppScheduler.CreateProcessJob(
+                jobName,
+                jobGroup,
+                "OPUpdateCars",
+                _userConnection.Workspace.Name,
+                _userConnection.CurrentUser.Name);
 
-            ITrigger trigger = TriggerBuilder.Create()
-                .WithIdentity($"{jobName}Trigger", jobGroup)
-                .StartAt(startTime)
-                .Build();
+            ITrigger trigger = new SimpleTriggerImpl($"{jobName}Trigger", jobGroup, startTime);
 
             AppScheduler.Instance.ScheduleJob(job, trigger);
         }
