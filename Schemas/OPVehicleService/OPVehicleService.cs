@@ -1,19 +1,18 @@
+using BPMSoft.Configuration.Helpers;
+using BPMSoft.Configuration.Logger;
 using BPMSoft.Configuration.OPCarsBaseIntegration.Logger;
-using BPMSoft.Configuration.Services;
 using BPMSoft.Configuration.Validation;
 using BPMSoft.Core;
-using BPMSoft.Core.Process;
-using BPMSoft.Core.Scheduler;
+using BPMSoft.Core.Factories;
 using BPMSoft.Core.Tasks;
 using BPMSoft.Web.Common;
-using DocumentFormat.OpenXml.Spreadsheet;
 using System;
-using System.Collections.Generic;
 using System.ServiceModel;
 using System.ServiceModel.Activation;
 using System.ServiceModel.Web;
+using CommonLogger = BPMSoft.Configuration.OPCommonLogger.OPCommonLogger;
 
-namespace BPMSoft.Configuration.OPVehicleBrandService
+namespace BPMSoft.Configuration.Services
 {
 
     [ServiceContract]
@@ -40,9 +39,10 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
                     $"{requestContext}"
                 );
 
-                Services.OPVehicleBrandService service = new Services.OPVehicleBrandService(base.UserConnection);
+                var helper = ClassFactory.Get<OPVehicleBrandHelper>(
+                            new ConstructorArgument("userConnection", UserConnection));
 
-                var response = service.ImportBrands();
+                var response = helper.ImportBrands();
 
                 if (response.IsFailure)
                     return response.Error;
@@ -79,9 +79,10 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
                     $"{requestContext}"
                 );
 
-                OPVehicleModelService service = new OPVehicleModelService(base.UserConnection);
+                var helper = ClassFactory.Get<OPVehicleModelHelper>(
+                            new ConstructorArgument("userConnection", UserConnection));
 
-                var response = service.ImportModels(brandId, externalBrandId);
+                var response = helper.ImportModels(brandId, externalBrandId);
 
                 if (response.IsFailure)
                     return response.Error;
@@ -105,15 +106,15 @@ namespace BPMSoft.Configuration.OPVehicleBrandService
             ResponseFormat = WebMessageFormat.Json)]
         public OPResult<string, OPError> StartFullImportTask()
         {
-            var param = Array.Empty<string>();
+            var globalLock = ClassFactory.Get<OPVehicleImportGlobalLock>(
+                new ConstructorArgument("userConnection", UserConnection));
 
-            string lockKey = "OPVehicleImport_GlobalLock";
-
-            var activeLock = UserConnection.ApplicationCache[lockKey];
-
-            if (activeLock != null)
+            if (globalLock.IsLocked()) 
                 return "Импорт уже запущен другим пользователем или системой. Дождитесь завершения.";
 
+            CommonLogger.WriteInformationLog(UserConnection, nameof(StartFullImportTask), "Запущен полный импорт данных (вручную)");
+
+            var param = Array.Empty<string>();
             Task.StartNewWithUserConnection<OPVehicleImportTask, string[]>(param);
 
             return "Задача запущена";

@@ -6,32 +6,33 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-
 using System.Text;
+using BPMSoft.Configuration.Models;
+
 
 namespace BPMSoft.Configuration.Providers
 {
 
     public class OPVehicleDataProvider
     {
-        private const string MARK_ENDPOINT = "marks";
-        private const string MODEL_ENDPOINT = "models";
-        private const string CONFIGURATION_ENDPOINT = "configurations";
-        private const string GENERATION_ENDPOINT = "generations";
+        protected const string MARK_ENDPOINT = "marks";
+        protected const string MODEL_ENDPOINT = "models";
+        protected const string CONFIGURATION_ENDPOINT = "configurations";
+        protected const string GENERATION_ENDPOINT = "generations";
 
-        private readonly string _apiUrl;
-        private readonly string _apiToken;
+        protected readonly string ApiUrl;
+        protected readonly string ApiToken;
 
-        private readonly UserConnection _userConnection;
+        protected readonly UserConnection UserConnection;
 
         public OPVehicleDataProvider(UserConnection userConnection)
         {
-            _userConnection = userConnection;
-            var url = Core.Configuration.SysSettings.GetValue(userConnection, "VehicleApiUrl", string.Empty);
-            var token = Core.Configuration.SysSettings.GetValue(userConnection, "VehicleApiToken", string.Empty);
+            UserConnection = userConnection;
+            var url = Core.Configuration.SysSettings.GetValue(userConnection, "OPVehicleApiUrl", string.Empty);
+            var token = Core.Configuration.SysSettings.GetValue(userConnection, "OPVehicleApiToken", string.Empty);
 
-            _apiUrl = string.IsNullOrEmpty(url) ? "https://api.cars-base.ru" : url;
-            _apiToken = string.IsNullOrEmpty(token) ? "test" : token;
+            ApiUrl = string.IsNullOrEmpty(url) ? "https://api.cars-base.ru" : url;
+            ApiToken = string.IsNullOrEmpty(token) ? "test" : token;
 
         }
 
@@ -92,7 +93,6 @@ namespace BPMSoft.Configuration.Providers
             {
                 var response = GetFromApi<TData>(endpoint);
 
-
                 if (response.IsFailure)
                     return response.Error;
 
@@ -104,24 +104,23 @@ namespace BPMSoft.Configuration.Providers
             }
         }
 
-
-        private OPResult<CarsBaseResponse<T>, OPError> GetFromApi<T>(string endpoint)
+        protected virtual OPResult<VehicleBaseResponse<T>, OPError> GetFromApi<T>(string endpoint)
         {
-            if (string.IsNullOrEmpty(_apiUrl))
+            if (string.IsNullOrEmpty(ApiUrl))
                 return OPErrors.API.InvalidApiToken();
 
-            if(string.IsNullOrEmpty(_apiToken))
+            if(string.IsNullOrEmpty(ApiToken))
                 return OPErrors.API.InvalidApiUrl();
 
-            var url = $"{_apiUrl}/{endpoint}token={_apiToken}";
+            var url = $"{ApiUrl}/{endpoint}token={ApiToken}";
             Guid logId = Guid.Empty;
 
             try
             {
                
                 logId = OPCarsBaseIntegrationLogger.StartRequest(
-                    _userConnection,
-                    nameof(GetBrands),
+                    UserConnection,
+                    nameof(GetFromApi),
                     url
                 );
 
@@ -133,106 +132,20 @@ namespace BPMSoft.Configuration.Providers
 
                     string jsonResponse = webClient.DownloadString(url);
 
-                    var apiResponse = JsonConvert.DeserializeObject<CarsBaseResponse<T>>(jsonResponse);
+                    var apiResponse = JsonConvert.DeserializeObject<VehicleBaseResponse<T>>(jsonResponse);
 
-                    OPCarsBaseIntegrationLogger.CompleteResponse(_userConnection, logId, nameof(GetFromApi), apiResponse);
+                    OPCarsBaseIntegrationLogger.CompleteResponse(UserConnection, logId, nameof(GetFromApi), new { DataCount = apiResponse.Data.Count} );
 
                     return apiResponse;
                 }
             }
             catch (Exception ex)
             {
-                OPCarsBaseIntegrationLogger.LogError(_userConnection, logId, ex, true);
+                OPCarsBaseIntegrationLogger.LogError(UserConnection, logId, ex, true);
                 throw;
             }
         }
     }
 
-    public class CarsBaseResponse<T>
-    {
-        [JsonProperty("data")]
-        public List<T> Data { get; set; }
-    }
-
-    public class VehicleBrandDto
-    {
-        [JsonProperty("id")]
-        public string ExternalId { get; set; }
-
-        [JsonProperty("numeric_id")]
-        public string ExternalNumericId { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("country")]
-        public string Country { get; set; }
-
-        [JsonProperty("updated_at")]
-        public DateTime UpdatedAt { get; set; }
-
-        [JsonProperty("models")]
-        public List<VehicleModelDto> Models { get; set; }
-    }
-
-    public class VehicleModelDto
-    {
-        [JsonProperty("id")]
-        public string ExternalId { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("year_from")]
-        public int YearFrom { get; set; }
-
-        [JsonProperty("year_to")]
-        public int? YearTo { get; set; }
-
-        [JsonProperty("class")]
-        public string VehicleClass { get; set; }
-
-        [JsonProperty("updated_at")]
-        public DateTime UpdatedAt { get; set; }
-    }
-
-    public class VehicleConfigurationDto
-    {
-        [JsonProperty("id")]
-        public string ExternalId { get; set; }
-
-        [JsonProperty("model_id")]
-        public string ModelExternalId { get; set; }
-
-        [JsonProperty("name")]
-        public string BodyType { get; set; }
-
-        [JsonProperty("doors_count")]
-        public int DoorsCount { get; set; }
-
-        [JsonProperty("updated_at")]
-        public DateTime UpdatedAt { get; set; }
-    }
-
-    public class VehicleGenerationDto
-    {
-        [JsonProperty("id")]
-        public string ExternalId { get; set; }
-
-        [JsonProperty("model_id")]
-        public string ModelExternalId { get; set; }
-
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string BodyType { get; set; }
-
-        [JsonProperty("year_from")]
-        public int YearFrom { get; set; }
-
-        [JsonProperty("year_to")]
-        public int YearTo { get; set; }
-
-        [JsonProperty("updated_at")]
-        public DateTime UpdatedAt { get; set; }
-
-    }
+    
 }

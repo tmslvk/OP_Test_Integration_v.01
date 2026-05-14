@@ -1,28 +1,34 @@
 using BPMSoft.Configuration;
-using BPMSoft.Configuration.Services;
+using BPMSoft.Configuration.Helpers;
 using BPMSoft.Core;
+using BPMSoft.Core.Factories;
 using BPMSoft.Core.Tasks;
-using Newtonsoft.Json;
 using System;
 
 public class OPVehicleImportTask : IBackgroundTask<string[]>, IUserConnectionRequired
 {
-    private UserConnection _userConnection;
-    private const string LockKey = "OPVehicleImport_GlobalLock";
+    protected UserConnection UserConnection;
 
     public void SetUserConnection(UserConnection userConnection)
     {
-        _userConnection = userConnection;
+        UserConnection = userConnection;
     }
 
     public void Run(string[] param)
-    {
+    {   
+        var globalLock = ClassFactory.Get<OPVehicleImportGlobalLock>(
+                new ConstructorArgument("userConnection", UserConnection));
 
-        _userConnection.ApplicationCache[LockKey] = DateTime.Now;
+        if (globalLock.IsLocked())
+            return;
+
+        globalLock.SetLocked();
 
         try
         {
-            var integrationService = new OPVehicleIntegrationService(_userConnection);
+            var integrationService = ClassFactory.Get<OPVehicleIntegrationHelper>(
+                 new ConstructorArgument("userConnection", UserConnection));
+
             integrationService.ImportAll();
         }
         catch (Exception)
@@ -31,25 +37,26 @@ public class OPVehicleImportTask : IBackgroundTask<string[]>, IUserConnectionReq
         }
         finally
         {
-            _userConnection.ApplicationCache.Remove(LockKey);
-            NotifyUser(_userConnection);
+            globalLock.SetUnlocked();
+            NotifyUser(UserConnection);
         }   
     }
 
-    private void NotifyUser(UserConnection userConnection)
+    protected virtual void NotifyUser(UserConnection userConnection)
     {
-        var remindingEntity = userConnection.EntitySchemaManager
-            .GetInstanceByName("Reminding")
-            .CreateEntity(userConnection);
+        RemindingUtilities reminding = new RemindingUtilities();
 
-        remindingEntity.SetDefColumnValues();
-        remindingEntity.SetColumnValue("AuthorId", userConnection.CurrentUser.ContactId);
-        remindingEntity.SetColumnValue("ContactId", userConnection.CurrentUser.ContactId);
-        remindingEntity.SetColumnValue("SubjectCaption", "Импорт завершен");
-        remindingEntity.SetColumnValue("Description", "Все данные об автомобилях загружены.");
-        remindingEntity.SetColumnValue("RemindTime", DateTime.Now);
-        remindingEntity.SetColumnValue("SysEntitySchemaId", userConnection.EntitySchemaManager.GetInstanceByName("OPVehicleBrand").UId);
-        remindingEntity.Save();
+        var id = userConnection.EntitySchemaManager.GetItemByName("OPVehicleBrand").UId;
+        var currentContactId = userConnection.CurrentUser.ContactId;
+
+        reminding.CreateReminding(userConnection, new RemindingConfig(id)
+        {
+            AuthorId = currentContactId,
+            ContactId = currentContactId,
+            Description = "Все данные об автомобилях загружены.",
+            RemindTime = DateTime.Now,
+            IsNeedToSend = true
+        });
     }
 
 }
